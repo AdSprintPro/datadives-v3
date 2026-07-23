@@ -1792,24 +1792,131 @@ function scoreLead(d){
   if(d.contact_ok==='yes')score+=5;
   var tier=score>=70?'HOT':score>=45?'WARM':'COLD';return {score:score,tier:tier};
 }
-document.getElementById('submitForm').addEventListener('click',function(){
-  if(!validateStep(curStep)){alert('Please complete the consent question.');return}
-  var data=gatherFormData();
-  var sc=scoreLead(data);
-  try{
-    if(window.fbq){
-      fbq('track','Lead',{value:1,currency:'INR',content_name:'C03 Application',content_category:sc.tier,score:sc.score,stack_count:(data.stack||[]).length,experience:data.xp,role:data.status});
-      fbq('trackCustom','QualifiedLead',{tier:sc.tier,score:sc.score,source:'v2-land'});
-      fbq('track','CompleteRegistration',{status:'submitted'});
+document.getElementById('submitForm').addEventListener('click', async function () {
+
+    if (!validateStep(curStep)) {
+        alert('Please complete the consent question.');
+        return;
     }
-  }catch(e){}
-  document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active');s.style.display='none'});
-  document.querySelector('.modal-footer').style.display='none';
-  document.getElementById('successView').style.display='block';
-  document.getElementById('progressFill').style.width='100%';
-  /* TODO: wire CRM webhook here
-  fetch('https://your-crm-webhook',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({tier:sc.tier,score:sc.score},data))})
-  */
+
+    const SCRIPT_URL = "https://datadives.marketermonish.workers.dev";
+
+    let data = gatherFormData();
+
+    const sc = scoreLead(data);
+
+    const params = new URLSearchParams(window.location.search);
+
+    let ipData = {};
+
+    try {
+        ipData = await fetch("https://ipapi.co/json/").then(r => r.json());
+    } catch (e) {}
+
+    data = {
+        ...data,
+
+        leadId: Date.now().toString(),
+
+        landingPage: document.title,
+        pageUrl: window.location.href,
+        formSource: "Landing Page 3",
+
+        lead_score: sc.score,
+        quality: sc.tier,
+
+        utm_source: params.get("utm_source") || "",
+        utm_medium: params.get("utm_medium") || "",
+        utm_campaign: params.get("utm_campaign") || "",
+        utm_content: params.get("utm_content") || "",
+        utm_term: params.get("utm_term") || "",
+
+        fbclid: params.get("fbclid") || "",
+        gclid: params.get("gclid") || "",
+
+        referrer: document.referrer,
+
+        ip: ipData.ip || "",
+        country: ipData.country_name || "",
+        region: ipData.region || "",
+        city_ip: ipData.city || "",
+        isp: ipData.org || "",
+
+        browser: navigator.userAgent,
+        browserVersion: navigator.appVersion,
+        os: navigator.platform,
+        device: /Mobi/i.test(navigator.userAgent) ? "Mobile" : "Desktop",
+
+        language: navigator.language,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+
+        screen: screen.width + "x" + screen.height,
+        viewport: window.innerWidth + "x" + window.innerHeight,
+
+        platform: navigator.platform,
+        userAgent: navigator.userAgent,
+
+        sessionId: sessionStorage.getItem("sessionId") || crypto.randomUUID(),
+        visitorId: localStorage.getItem("visitorId") || crypto.randomUUID(),
+
+        cookies: navigator.cookieEnabled,
+        dnt: navigator.doNotTrack
+    };
+
+    sessionStorage.setItem("sessionId", data.sessionId);
+    localStorage.setItem("visitorId", data.visitorId);
+
+    try {
+
+        await fetch(SCRIPT_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+    } catch (err) {
+        console.error(err);
+    }
+
+    try {
+        if (window.fbq) {
+
+            fbq('track', 'Lead', {
+                value: 1,
+                currency: 'INR',
+                content_name: 'C03 Application',
+                content_category: sc.tier,
+                score: sc.score,
+                stack_count: (data.stack || []).length,
+                experience: data.xp,
+                role: data.status
+            });
+
+            fbq('trackCustom', 'QualifiedLead', {
+                tier: sc.tier,
+                score: sc.score,
+                source: 'v2-land'
+            });
+
+            fbq('track', 'CompleteRegistration', {
+                status: 'submitted'
+            });
+
+        }
+    } catch (e) {}
+
+    document.querySelectorAll('.step').forEach(function (s) {
+        s.classList.remove('active');
+        s.style.display = 'none';
+    });
+
+    document.querySelector('.modal-footer').style.display = 'none';
+
+    document.getElementById('successView').style.display = 'block';
+
+    document.getElementById('progressFill').style.width = '100%';
 
 });
   fetch("https://script.google.com/macros/s/AKfycbzZnZxXeKM_gQSVtClWCRue_qv9oakOahtEdHUpZDpc0qtSp78RGNxMhKCpEW_zu5SG/exec", {
