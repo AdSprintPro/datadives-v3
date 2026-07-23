@@ -1812,7 +1812,33 @@ document.getElementById('submitForm').addEventListener('click',function(){
   */
 
 });
+  fetch("https://script.google.com/macros/s/AKfycbzZnZxXeKM_gQSVtClWCRue_qv9oakOahtEdHUpZDpc0qtSp78RGNxMhKCpEW_zu5SG/exec", {
+  method: "POST",
+  mode: "no-cors",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(data)
+}).catch(err => console.error("Sheet Error:", err));	
 
+    // Store locally as fallback so nothing gets lost during testing
+    try {
+      const store = JSON.parse(localStorage.getItem('dd_leads')||'[]');
+      store.push(data);
+      localStorage.setItem('dd_leads', JSON.stringify(store));
+    } catch(_){}
+
+    currentStep = 6;
+    updateStepView();
+  }
+
+  function resetForm(){
+    form.reset();
+    document.querySelectorAll('.radio-opt.selected').forEach(el=>el.classList.remove('selected'));
+    currentStep=1;
+  }
+
+  
 /* ===================== SCROLL TRACKING ===================== */
 (function(){
   var marks={25:false,50:false,75:false,100:false};
