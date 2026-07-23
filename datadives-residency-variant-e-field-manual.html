@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
+<title>Data Engineer Residency — Datadives | The Engineer's Field Manual</title>
+<meta name="description" content="An engineering residency, not a course. Spec out real data infrastructure. Reviewed by senior engineers. 12 weeks. 10 seats. ₹49,999 early bird." />
+<meta name="theme-color" content="#16314e" />
+
+<meta property="og:title" content="Data Engineer Residency — Datadives | The Field Manual" />
+<meta property="og:description" content="Spec out, build, and ship real production data systems. Reviewed by senior engineers. Only 10 seats per batch." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://www.datadives.in/academy" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Big+Shoulders+Display:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@500;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+
+<!-- ============ META PIXEL CODE ============ -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1378486190820877');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt=""
+src="https://www.facebook.com/tr?id=1378486190820877&ev=PageView&noscript=1"/></noscript>
+<!-- ============ END META PIXEL CODE ============ -->
+
+<style>
+  :root{
+    --paper:#f4edd9;
+    --paper-2:#ebe1c6;
+    --paper-3:#e3d6b3;
+    --ink:#16314e;
+    --ink-2:#0e2138;
+    --ink-3:#3c5470;
+    --red:#c8482b;
+    --red-deep:#9c351f;
+    --yellow:#f3b53d;
+    --yellow-deep:#d69826;
+    --teal:#2a6b7c;
+    --teal-deep:#1e4f5d;
+    --graphite:#4a4a52;
+    --success:#3d7a4b;
+    --line:rgba(22,49,78,.18);
+    --danger:#9c351f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:24px 24px;
+    background-position:-1px -1px;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(22,49,78,.04), transparent 40%),
+      radial-gradient(circle at 80% 85%, rgba(200,72,43,.04), transparent 40%);
+  }
+  main, header, section, footer, nav, div.bleed{position:relative;z-index:1}
+  a{color:inherit;text-decoration:none}
+  img,svg{max-width:100%;display:block}
+  button{font-family:inherit}
+  .container{max-width:1240px;margin:0 auto;padding:0 20px}
+  @media(min-width:768px){.container{padding:0 28px}}
+
+  .display{font-family:'Big Shoulders Display',sans-serif;font-weight:800;letter-spacing:-.01em;line-height:.92;text-transform:uppercase}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .hand{font-family:'Caveat',cursive;font-weight:700}
+  .marker{font-family:'Permanent Marker',cursive}
+
+  .icon{width:22px;height:22px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:middle;flex-shrink:0}
+  .icon-sm{width:16px;height:16px}
+  .icon-lg{width:28px;height:28px}
+
+  /* === REGISTER MARKS (blueprint corners) === */
+  .regmarks{position:absolute;width:18px;height:18px;pointer-events:none}
+  .regmarks svg{width:100%;height:100%;stroke:var(--ink);stroke-width:1.4;fill:none}
+  .reg-tl{top:-6px;left:-6px}
+  .reg-tr{top:-6px;right:-6px;transform:scaleX(-1)}
+  .reg-bl{bottom:-6px;left:-6px;transform:scaleY(-1)}
+  .reg-br{bottom:-6px;right:-6px;transform:scale(-1,-1)}
+
+  /* === TOP RULER TICK BAR === */
+  .ruler{height:14px;background:var(--ink);position:relative;overflow:hidden}
+  .ruler::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,transparent 0,transparent 12px,var(--yellow) 12px,var(--yellow) 14px);opacity:.75}
+  .ruler::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--yellow)}
+
+  /* === SPEC STRIP (top meta info) === */
+  .spec-strip{background:var(--paper-2);border-bottom:1.5px solid var(--ink);padding:9px 0;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;color:var(--ink);letter-spacing:.02em}
+  .spec-strip .container{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+  .spec-strip .grp{display:flex;gap:18px;align-items:center}
+  .spec-strip .grp span{display:inline-flex;align-items:center;gap:6px}
+  .spec-strip .dot{width:6px;height:6px;background:var(--red);border-radius:50%;display:inline-block}
+  .spec-strip .pulse{animation:blink 1.3s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .spec-strip .lbl{color:var(--red);font-weight:700;text-transform:uppercase}
+  @media(max-width:640px){.spec-strip{font-size:10px}.spec-strip .gp2{display:none}}
+
+  /* === NAV === */
+  .nav{position:sticky;top:0;z-index:50;background:rgba(244,237,217,.95);backdrop-filter:saturate(140%) blur(8px);border-bottom:1.5px solid var(--ink)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;max-width:1240px;margin:0 auto;gap:16px}
+  @media(min-width:768px){.nav-inner{padding:18px 28px}}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:900;font-size:19px;letter-spacing:-.01em;color:var(--ink)}
+  @media(min-width:768px){.brand{font-size:22px}}
+  .brand-mark{width:38px;height:38px;background:var(--ink);color:var(--yellow);position:relative;display:grid;place-items:center;font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:18px;letter-spacing:-.02em;border:2px solid var(--ink)}
+  .brand-mark::before,.brand-mark::after{content:"";position:absolute;width:6px;height:6px;background:var(--yellow);border-radius:50%}
+  .brand-mark::before{top:-3px;left:-3px}
+  .brand-mark::after{bottom:-3px;right:-3px}
+  .brand .ver{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);font-weight:700;letter-spacing:.04em;background:var(--paper-3);padding:2px 5px;border:1px solid var(--ink);display:inline-block;margin-left:4px;text-transform:uppercase;position:relative;top:-3px}
+  .nav-links{display:none;gap:24px;font-size:14px;font-weight:600;color:var(--ink-2);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+  @media(min-width:1000px){.nav-links{display:flex}}
+  .nav-links a{position:relative;padding:4px 0}
+  .nav-links a::before{content:"§";color:var(--red);margin-right:4px;font-weight:700}
+  .nav-links a:hover{color:var(--red)}
+
+  /* === BUTTONS === */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;padding:13px 20px;border-radius:0;border:2px solid var(--ink);cursor:pointer;font-size:14px;transition:all .18s ease;text-transform:uppercase;letter-spacing:.06em;background:var(--paper);color:var(--ink);position:relative;font-family:'JetBrains Mono',monospace}
+  @media(min-width:768px){.btn{padding:14px 24px;font-size:14px}}
+  .btn:hover{transform:translate(-2px,-2px)}
+  .btn:active{transform:translate(0,0)}
+  .btn-primary{background:var(--ink);color:var(--paper);border-color:var(--ink);box-shadow:4px 4px 0 var(--red)}
+  .btn-primary:hover{box-shadow:6px 6px 0 var(--red)}
+  .btn-yellow{background:var(--yellow);color:var(--ink);border-color:var(--ink);box-shadow:4px 4px 0 var(--ink)}
+  .btn-yellow:hover{box-shadow:6px 6px 0 var(--ink)}
+  .btn-red{background:var(--red);color:var(--paper);border-color:var(--ink);box-shadow:4px 4px 0 var(--ink)}
+  .btn-red:hover{box-shadow:6px 6px 0 var(--ink)}
+  .btn-outline{background:transparent}
+  .btn-outline:hover{background:var(--ink);color:var(--paper)}
+  .btn-lg{padding:15px 24px;font-size:14px}
+  @media(min-width:768px){.btn-lg{padding:18px 32px;font-size:15px}}
+  .btn-block{width:100%}
+  .btn .arr{display:inline-block;transition:transform .2s}
+  .btn:hover .arr{transform:translateX(3px)}
+
+  /* === SECTION BASE === */
+  section{padding:64px 0;position:relative;background:var(--paper)}
+  @media(min-width:768px){section{padding:88px 0}}
+  .section-rule{height:6px;background:var(--ink);position:relative;margin:0}
+  .section-rule::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,var(--yellow) 0,var(--yellow) 24px,transparent 24px,transparent 36px)}
+
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:18px;border:2px solid var(--ink)}
+  .eyebrow .num{display:inline-block;background:var(--yellow);color:var(--ink);padding:1px 6px;font-weight:800;margin-left:6px}
+  @media(min-width:768px){.eyebrow{font-size:12px;letter-spacing:.16em;margin-bottom:22px}}
+  .eyebrow.r{background:var(--red);color:var(--paper)}
+  .eyebrow.y{background:var(--yellow);color:var(--ink)}
+  .section-title{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:clamp(36px,6.4vw,76px);letter-spacing:-.01em;line-height:.94;text-transform:uppercase;margin-bottom:18px;color:var(--ink)}
+  .section-title .a{color:var(--red)}
+  .section-title .u{text-decoration:underline;text-decoration-color:var(--yellow);text-decoration-thickness:6px;text-underline-offset:6px}
+  .section-sub{font-size:16.5px;color:var(--ink-3);max-width:780px;margin-bottom:40px;line-height:1.6}
+  @media(min-width:768px){.section-sub{font-size:18px;margin-bottom:52px}}
+
+  /* === HERO === */
+  .hero{position:relative;overflow:hidden;padding:48px 0 56px;background:transparent}
+  @media(min-width:768px){.hero{padding:80px 0 80px}}
+  .hero-inner{position:relative;z-index:2}
+  .hero-framemark{position:absolute;inset:0 0 auto 0;height:6px;background:var(--ink);z-index:3}
+  .hero-framemark::after{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,var(--red) 0,var(--red) 40px,transparent 40px,transparent 64px)}
+
+  .hero-tag{display:inline-flex;align-items:center;gap:10px;background:var(--paper);border:2px solid var(--ink);padding:7px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px;color:var(--ink);position:relative;box-shadow:3px 3px 0 var(--red)}
+  @media(min-width:768px){.hero-tag{font-size:12px;padding:8px 16px}}
+  .hero-tag .pulse{width:8px;height:8px;background:var(--red);border-radius:50%;animation:blink 1.4s infinite}
+
+  .hero-title{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:clamp(48px,10vw,124px);letter-spacing:-.015em;line-height:.88;text-transform:uppercase;color:var(--ink);margin-bottom:24px}
+  .hero-title .row{display:block;position:relative}
+  .hero-title .row .strike{position:relative;display:inline-block;color:var(--graphite)}
+  .hero-title .row .strike::after{content:"";position:absolute;left:-4px;right:-6px;top:48%;height:6px;background:var(--red);transform:rotate(-2deg)}
+  .hero-title .row .red{color:var(--red)}
+  .hero-title .row .underline{text-decoration:underline;text-decoration-color:var(--yellow);text-decoration-thickness:8px;text-underline-offset:8px}
+  .hero-title .row .yellow-block{background:var(--yellow);padding:0 12px}
+  .hero-title .row .ink-block{background:var(--ink);color:var(--paper);padding:0 12px;transform:rotate(-1.2deg);display:inline-block}
+
+  /* dimension-lines around hero title */
+  .dim-line{position:relative;display:inline-block}
+  .dim-line::before,.dim-line::after{content:"";position:absolute;top:50%;width:14px;height:2px;background:var(--red);transform:translateY(-50%)}
+  .dim-line::before{left:-22px}
+  .dim-line::after{right:-22px}
+
+  .hero-flex{display:grid;grid-template-columns:1fr;gap:40px;align-items:start;margin-top:22px}
+  @media(min-width:920px){.hero-flex{grid-template-columns:1.15fr .85fr;gap:48px}}
+
+  .hero-lede{font-size:17px;color:var(--ink-2);max-width:600px;margin-bottom:22px;line-height:1.6}
+  @media(min-width:768px){.hero-lede{font-size:19px;margin-bottom:28px}}
+  .hero-lede b{color:var(--ink);background:linear-gradient(180deg,transparent 60%,var(--yellow) 60%);padding:0 3px}
+  .hero-lede .ln2{color:var(--ink-3)}
+
+  .hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
+  .hero-ctas .btn{flex:1;min-width:200px}
+  @media(min-width:768px){.hero-ctas .btn{flex:0 1 auto}}
+
+  .spec-block{margin-top:28px;border:2px solid var(--ink);background:var(--paper-2);position:relative;max-width:540px}
+  .spec-block-head{background:var(--ink);color:var(--paper);padding:9px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  .spec-block-head .pn{color:var(--yellow)}
+  .spec-block-body{padding:16px 18px;display:grid;grid-template-columns:auto 1fr;gap:8px 18px;font-family:'JetBrains Mono',monospace;font-size:13px}
+  .spec-block-body dt{font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.04em;font-size:11px;align-self:center}
+  .spec-block-body dd{color:var(--ink-2);font-weight:600;align-self:center;font-size:13.5px}
+  .spec-block-body dd .old{color:var(--graphite);text-decoration:line-through;margin-right:6px;font-weight:500}
+  .spec-block-body dd .new{color:var(--ink);font-weight:800;font-size:16px;background:var(--yellow);padding:0 6px}
+  @media(max-width:520px){.spec-block-body{font-size:12px}}
+
+  /* === DRAWING CARD (right side hero) === */
+  .drawing-wrap{position:relative;border:2px solid var(--ink);background:var(--paper-2);margin-top:8px}
+  .drawing-head{background:var(--ink);color:var(--paper);padding:8px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;border-bottom:2px solid var(--ink)}
+  .drawing-head .pn{color:var(--yellow)}
+  .drawing-head .sc{color:var(--yellow);font-size:10px}
+  .drawing-body{padding:18px 16px;position:relative}
+  @media(min-width:768px){.drawing-body{padding:24px}}
+  .drawing-title{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink);margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;padding-bottom:8px;border-bottom:1.5px dashed var(--ink)}
+  .drawing-title .stamp{display:inline-block;background:var(--red);color:var(--paper);font-size:9px;padding:3px 8px;letter-spacing:.14em;border:1.5px solid var(--ink);transform:rotate(-2.5deg);font-weight:800}
+
+  /* Schematic flow */
+  .schematic{display:flex;flex-direction:column;gap:0;position:relative;margin-bottom:16px}
+  @media(min-width:520px){.schematic{display:block}}
+  .scm-row{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:8px}
+  @media(min-width:520px){.scm-row{display:flex;align-items:stretch;gap:0;margin-bottom:0}}
+  .scm-node{background:var(--paper);border:2px solid var(--ink);padding:10px 8px;text-align:center;position:relative;flex:1;min-width:0;font-family:'JetBrains Mono',monospace}
+  .scm-node .ix{display:flex;align-items:center;justify-content:center;margin-bottom:6px;color:var(--red)}
+  .scm-node .ix svg{width:22px;height:22px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .scm-node .nm{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ink)}
+  .scm-node .lb{font-size:9px;color:var(--graphite);text-transform:uppercase;letter-spacing:.08em;display:block;margin-top:2px}
+  .scm-arrow{display:none;color:var(--red);font-weight:900;align-self:center;padding:0 4px;font-size:18px}
+  @media(min-width:520px){.scm-arrow{display:inline-block}}
+  .scm-row-v{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0}
+  @media(min-width:520px){.scm-row-v{display:none}}
+  .scm-row-v svg{width:14px;height:14px;stroke:var(--red);stroke-width:2.5;fill:none}
+
+  .drawing-checks{display:grid;gap:8px;padding-top:14px;border-top:1.5px dashed var(--ink)}
+  .drawing-check{display:flex;gap:10px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em}
+  .drawing-check .cb{width:18px;height:18px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-size:11px;font-weight:900;flex-shrink:0;font-family:'Inter',sans-serif}
+  @media(min-width:520px){.drawing-check{font-size:13px}}
+
+  /* sticker notes - just the spec-style ones */
+  .spec-sticker{position:absolute;background:var(--yellow);border:2px solid var(--ink);padding:10px 14px;font-family:'Caveat',cursive;font-size:18px;font-weight:700;line-height:1.1;max-width:170px;box-shadow:4px 4px 0 var(--ink);z-index:4}
+  @media(min-width:768px){.spec-sticker{font-size:21px;max-width:200px}}
+  .spec-sticker.tr{top:-22px;right:-12px;transform:rotate(4deg)}
+  .spec-sticker.bl{bottom:-22px;left:-12px;transform:rotate(-3deg);background:var(--red);color:var(--paper)}
+  @media(min-width:768px){.spec-sticker.tr{top:-26px;right:-18px}.spec-sticker.bl{bottom:-30px;left:-18px}}
+
+  /* === TRUST STRIP STATS === */
+  .trust-strip{background:var(--ink);color:var(--paper);border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);padding:0;position:relative;overflow:hidden}
+  .trust-strip::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,transparent 0,transparent 60px,rgba(243,181,61,.1) 60px,rgba(243,181,61,.1) 62px);pointer-events:none}
+  .trust-inner{display:grid;grid-template-columns:repeat(2,1fr);gap:0;position:relative;z-index:1}
+  @media(min-width:768px){.trust-inner{grid-template-columns:repeat(4,1fr)}}
+  .trust-cell{padding:24px 16px;border-right:1px solid rgba(244,237,217,.12);border-bottom:1px solid rgba(244,237,217,.12);display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;font-family:'JetBrains Mono',monospace}
+  .trust-cell:last-child{border-right:none}
+  @media(min-width:768px){.trust-cell{border-bottom:none;padding:30px 20px}}
+  .trust-cell svg{width:26px;height:26px;stroke:var(--yellow);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;margin-bottom:2px}
+  .trust-cell .num{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:40px;color:var(--yellow);letter-spacing:-.02em;line-height:1}
+  .trust-cell .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:#cfc6a8;font-weight:600}
+  @media(min-width:768px){.trust-cell .num{font-size:48px}.trust-cell .lbl{font-size:12px}}
+
+  /* === LOGO PROOF BAND === */
+  .proof-band{background:var(--paper-2);padding:40px 0;border-bottom:1.5px solid var(--ink);border-top:1.5px solid var(--ink)}
+  .proof-lbl{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--ink-3);text-align:center;margin-bottom:18px}
+  .proof-lbl .b{color:var(--red)}
+  .logo-row{display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap}
+  .logo-row .plogo{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;letter-spacing:.04em;color:var(--ink);display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:2px solid var(--ink);background:var(--paper);font-weight:700;text-transform:uppercase}
+  .logo-row .plogo svg{width:16px;height:16px;stroke:var(--red);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  @media(min-width:768px){.logo-row{gap:18px}.logo-row .plogo{font-size:13px;padding:10px 14px}}
+
+  /* === PROBLEM (annotated) === */
+  .problem{background:var(--paper)}
+  .problem-grid{display:grid;grid-template-columns:1fr;gap:42px;align-items:start}
+  @media(min-width:900px){.problem-grid{grid-template-columns:1fr 1.2fr;gap:52px}}
+  .pain-stack{display:grid;gap:14px}
+  .pain-row{background:var(--paper-2);border:2px solid var(--ink);padding:18px 20px;display:flex;gap:16px;align-items:flex-start;transition:all .2s ease;position:relative}
+  @media(min-width:768px){.pain-row{padding:22px 24px}}
+  .pain-row::before{content:attr(data-no);position:absolute;top:-1px;right:-1px;background:var(--red);color:var(--paper);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:.1em;padding:4px 8px;border:2px solid var(--ink)}
+  .pain-row:hover{transform:translate(-3px,-3px);box-shadow:5px 5px 0 var(--red);background:var(--paper)}
+  .pain-row .ix{width:42px;height:42px;background:var(--ink);color:var(--yellow);display:grid;place-items:center;flex-shrink:0;border:2px solid var(--ink);font-family:'JetBrains Mono',monospace;font-weight:800;font-size:14px}
+  .pain-row h4{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:18px;letter-spacing:.01em;margin-bottom:6px;text-transform:uppercase;line-height:1.1}
+  @media(min-width:768px){.pain-row h4{font-size:20px}}
+  .pain-row p{font-size:14px;color:var(--ink-3);line-height:1.55}
+  @media(min-width:768px){.pain-row p{font-size:14.5px}}
+  .pain-callout{font-family:'Caveat',cursive;color:var(--red);font-size:16px;font-weight:700;margin-top:8px;display:block;line-height:1.15;transform:rotate(-1.5deg)}
+
+  /* === MENTORS / REVIEW BOARD === */
+  .mentors{background:var(--paper-2);border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+  .mentor-grid{display:grid;grid-template-columns:1fr;gap:18px}
+  @media(min-width:640px){.mentor-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:900px){.mentor-grid{grid-template-columns:repeat(3,1fr)}}
+  .mentor{background:var(--paper);border:2px solid var(--ink);padding:0;position:relative;transition:all .18s ease;overflow:hidden}
+  .mentor:hover{transform:translate(-4px,-4px);box-shadow:6px 6px 0 var(--red)}
+  .mentor-row1{display:flex;justify-content:space-between;align-items:center;background:var(--ink);color:var(--paper);padding:7px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-bottom:2px solid var(--ink)}
+  .mentor-row1 .role{color:var(--yellow)}
+  .mentor-body{padding:18px 18px 20px}
+  .mentor-head{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+  .mentor-avatar{width:54px;height:54px;background:var(--paper-3);color:var(--ink);display:grid;place-items:center;font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:22px;letter-spacing:-.02em;border:2px solid var(--ink);flex-shrink:0;position:relative}
+  .mentor-avatar::after{content:"";position:absolute;bottom:-5px;right:-5px;background:var(--red);width:16px;height:16px;border:2px solid var(--ink);border-radius:50%;display:grid;place-items:center}
+  .mentor-name{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:.01em;line-height:1;margin-bottom:4px}
+  .mentor-tenure{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+  .mentor-bio{font-size:14px;color:var(--ink-3);margin-bottom:14px;line-height:1.55}
+  .mentor-tags{display:flex;flex-wrap:wrap;gap:6px;padding-top:14px;border-top:1.5px dashed var(--ink)}
+  .mentor-tags span{background:var(--paper-2);border:1.5px solid var(--ink);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:3px 8px;letter-spacing:.06em;text-transform:uppercase}
+  .mentor-sign{margin-top:14px;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--graphite)}
+  .mentor-sign .star{display:inline-flex;align-items:center;gap:4px;color:var(--red)}
+  .mentor-sign .star svg{width:10px;height:10px;fill:var(--red);stroke:none}
+
+  /* === TESTIMONIALS — FIELD REPORTS === */
+  .testimonials{background:var(--paper)}
+  .tgrid{display:grid;grid-template-columns:1fr;gap:18px}
+  @media(min-width:768px){.tgrid{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:1000px){.tgrid{grid-template-columns:repeat(3,1fr)}}
+  .tcard{background:var(--paper-2);border:2px solid var(--ink);padding:0;position:relative;transition:all .18s ease}
+  .tcard:hover{transform:translate(-3px,-3px);box-shadow:5px 5px 0 var(--red)}
+  .tcard-head{background:var(--ink);color:var(--paper);padding:7px 16px;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-bottom:2px solid var(--ink);flex-wrap:wrap;gap:6px}
+  .tcard-head .pn{color:var(--yellow)}
+  .tcard-head .dt{color:#cfc6a8}
+  .tcard-body{padding:18px 18px 16px;position:relative}
+  .tcard .qm{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:54px;color:var(--red);line-height:.6;margin-bottom:-8px;display:inline-block}
+  .tcard-stars{display:flex;gap:2px;margin-bottom:10px}
+  .tcard-stars svg{width:15px;height:15px;fill:var(--yellow);stroke:var(--ink);stroke-width:1.5}
+  .tcard blockquote{font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.65;color:var(--ink-2);font-weight:500;margin-bottom:14px;background:var(--paper);padding:12px 14px;border:1.5px dashed var(--ink)}
+  .tcard blockquote b{background:var(--yellow);padding:0 3px;color:var(--ink)}
+  .tperson{display:flex;gap:12px;align-items:center;padding:14px 18px;border-top:2px solid var(--ink);background:var(--paper-3)}
+  .tperson-avatar{width:42px;height:42px;background:var(--ink);color:var(--yellow);display:grid;place-items:center;font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:16px;border:2px solid var(--ink);flex-shrink:0}
+  .tperson-name{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.04em;line-height:1.1;color:var(--ink)}
+  .tperson-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+
+  /* === SOLUTION — SPEC SHEET === */
+  .pillars-grid{display:grid;grid-template-columns:1fr;gap:18px}
+  @media(min-width:640px){.pillars-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:1000px){.pillars-grid{grid-template-columns:repeat(4,1fr)}}
+  .pillar{background:var(--paper-2);border:2px solid var(--ink);padding:0;position:relative;transition:all .18s ease;overflow:hidden}
+  .pillar:hover{transform:translate(-3px,-3px);box-shadow:5px 5px 0 var(--red)}
+  .pillar-head{background:var(--ink);color:var(--paper);padding:8px 14px;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-bottom:2px solid var(--ink)}
+  .pillar-head .pn{color:var(--yellow)}
+  .pillar-body{padding:18px 18px 20px}
+  .pillar-num-big{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:56px;color:var(--red);line-height:.9;margin-bottom:8px;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+  .pillar-num-big svg{width:32px;height:32px;stroke:var(--ink);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .pillar h4{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:20px;text-transform:uppercase;margin-bottom:8px;letter-spacing:.01em;line-height:1.05;color:var(--ink)}
+  .pillar p{font-size:13.5px;color:var(--ink-3);line-height:1.6}
+  .pillar-tag{display:inline-block;margin-top:12px;font-family:'JetBrains Mono',monospace;background:var(--yellow);color:var(--ink);padding:3px 8px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1.5px solid var(--ink)}
+
+  /* === STACK TICKER === */
+  .stack-ticker{background:var(--ink);padding:18px 0;overflow:hidden;border-top:3px solid var(--yellow);border-bottom:3px solid var(--yellow);position:relative}
+  .stack-track{display:flex;gap:36px;animation:scroll 38s linear infinite;white-space:nowrap;color:var(--paper);font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;letter-spacing:.04em;text-transform:uppercase;will-change:transform}
+  @media(min-width:768px){.stack-track{font-size:22px;gap:50px}}
+  .stack-track span{display:inline-flex;align-items:center;gap:10px}
+  .stack-track .sep{color:var(--yellow);font-weight:900}
+  .stack-track .pipe{color:var(--red);font-size:14px}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* === PROJECTS — DELIVERED PROTOTYPES === */
+  .projects{background:var(--paper-2)}
+  .pgrid{display:grid;grid-template-columns:1fr;gap:20px}
+  @media(min-width:768px){.pgrid{grid-template-columns:repeat(2,1fr)}}
+  .pcard{background:var(--paper);border:2px solid var(--ink);padding:0;overflow:hidden;transition:all .18s ease;display:flex;flex-direction:column;position:relative}
+  .pcard:hover{transform:translate(-4px,-4px);box-shadow:6px 6px 0 var(--red)}
+  .pcard-head{background:var(--ink);color:var(--paper);padding:8px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;border-bottom:2px solid var(--ink);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+  .pcard-head .plabel{color:var(--yellow)}
+  .pcard-head .pweek{color:#cfc6a8}
+  .pcard-render{padding:16px;background:var(--paper-3);border-bottom:2px solid var(--ink);position:relative;min-height:60px}
+  .pcard-render .r-lbl{position:absolute;top:6px;left:10px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ink);font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.6}
+  .pcard-render .r-corner{position:absolute;bottom:6px;right:10px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ink);font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.6}
+  .pcard-body{padding:18px 20px 16px;flex:1}
+  .pcard h4{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:21px;text-transform:uppercase;letter-spacing:.01em;line-height:1.05;margin-bottom:10px;color:var(--ink)}
+  .pcard p{font-size:14px;color:var(--ink-3);margin-bottom:14px;line-height:1.55}
+  .pcard .stack{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;padding-bottom:14px;border-bottom:1.5px dashed var(--ink)}
+  .pcard .stack span{background:var(--paper-2);border:1.5px solid var(--ink);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:3px 8px;letter-spacing:.06em;text-transform:uppercase}
+  .pcard-outcomes{background:var(--paper);border-top:2px solid var(--ink);padding:14px 20px;display:grid;gap:8px}
+  .pout{display:flex;gap:10px;align-items:flex-start;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em}
+  .pout svg{width:14px;height:14px;stroke:var(--red);stroke-width:3;flex-shrink:0;margin-top:1px;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+  /* === CURRICULUM — BILL OF MATERIALS === */
+  .curriculum{background:var(--paper)}
+  .weeks-grid{display:grid;grid-template-columns:1fr;gap:32px;align-items:start}
+  @media(min-width:960px){.weeks-grid{grid-template-columns:1.15fr .85fr;gap:52px}}
+  .weeks{display:grid;gap:0;border:2px solid var(--ink);background:var(--paper)}
+  .week-row{background:var(--paper);border-bottom:2px solid var(--ink);padding:18px 20px;display:grid;grid-template-columns:60px 1fr;gap:18px;align-items:center;transition:all .18s ease;position:relative}
+  .week-row:last-child{border-bottom:none}
+  @media(min-width:768px){.week-row{padding:22px 26px;grid-template-columns:80px 1fr;gap:24px}}
+  .week-row:hover{background:var(--paper-2);transform:translateX(-3px);box-shadow:3px 3px 0 var(--red)}
+  .wk-num{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:36px;color:var(--red);line-height:1;letter-spacing:-.02em;border-right:2px dashed var(--ink);padding-right:14px;text-align:center}
+  @media(min-width:768px){.wk-num{font-size:42px}}
+  .wk-content h4{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:17px;text-transform:uppercase;letter-spacing:.01em;margin-bottom:4px;line-height:1.1;color:var(--ink)}
+  @media(min-width:768px){.wk-content h4{font-size:19px}}
+  .wk-content p{font-size:13.5px;color:var(--ink-3);margin-bottom:8px;line-height:1.5}
+  .wk-content .wk-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+  .wk-content .wk-meta span{background:var(--paper-2);border:1.5px solid var(--ink);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:2px 7px;letter-spacing:.06em;text-transform:uppercase}
+  .wk-content .finalize{background:var(--yellow);color:var(--ink)}
+  .ship-card{background:var(--ink);border:2px solid var(--ink);padding:28px;position:relative;box-shadow:6px 6px 0 var(--red);color:var(--paper)}
+  @media(min-width:960px){.ship-card{position:sticky;top:100px}}
+  .ship-card-head{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--yellow);font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;padding-bottom:10px;border-bottom:1.5px dashed rgba(244,237,217,.3)}
+  .ship-card h4{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:24px;text-transform:uppercase;margin-bottom:14px;letter-spacing:.01em;line-height:1.0}
+  @media(min-width:768px){.ship-card h4{font-size:28px}}
+  .ship-card ul{list-style:none;display:grid;gap:10px}
+  .ship-card li{display:flex;gap:10px;align-items:flex-start;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--paper)}
+  .ship-card li svg{width:16px;height:16px;stroke:var(--yellow);stroke-width:2.5;flex-shrink:0;margin-top:1px;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .ship-quote{margin-top:20px;padding-top:18px;border-top:1.5px dashed rgba(244,237,217,.3);font-family:'Caveat',cursive;font-size:23px;color:var(--yellow);line-height:1.1;font-weight:700;transform:rotate(-1deg)}
+  .ship-stat{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:18px;border:1.5px solid var(--paper)}
+  .ship-stat div{padding:10px 12px;text-align:center;font-family:'JetBrains Mono',monospace;border-right:1.5px solid var(--paper)}
+  .ship-stat div:last-child{border-right:none}
+  .ship-stat .v{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:26px;color:var(--yellow);display:block;letter-spacing:-.01em}
+  .ship-stat .k{font-size:9px;color:var(--paper);font-weight:700;text-transform:uppercase;letter-spacing:.1em;opacity:.7}
+
+  /* === HOW — ASSEMBLY === */
+  .how{background:var(--paper-2)}
+  .how-grid{display:grid;grid-template-columns:1fr;gap:18px}
+  @media(min-width:640px){.how-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:1000px){.how-grid{grid-template-columns:repeat(4,1fr)}}
+  .how-card{background:var(--paper);border:2px solid var(--ink);padding:0;position:relative;transition:all .18s ease;overflow:hidden}
+  .how-card:hover{transform:translate(-3px,-3px);box-shadow:5px 5px 0 var(--red)}
+  .how-step-num{background:var(--red);color:var(--paper);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:6px 16px;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;align-items:center}
+  .how-step-num .dur{color:var(--yellow)}
+  .how-body{padding:18px 20px 22px}
+  .how-card .ic-wrap{width:48px;height:48px;background:var(--yellow);display:grid;place-items:center;margin-bottom:14px;border:2px solid var(--ink)}
+  .how-card .ic-wrap svg{width:24px;height:24px;stroke:var(--ink);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .how-card h4{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:.01em;margin-bottom:8px;line-height:1.05;color:var(--ink)}
+  @media(min-width:768px){.how-card h4{font-size:20px}}
+  .how-card p{font-size:13.5px;color:var(--ink-3);line-height:1.55}
+
+  /* === AUDIENCE === */
+  .audience{background:var(--paper)}
+  .aud-grid{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:640px){.aud-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:1000px){.aud-grid{grid-template-columns:repeat(3,1fr)}}
+  .aud-cell{background:var(--paper-2);border:2px solid var(--ink);padding:20px;transition:all .2s ease;position:relative}
+  .aud-cell:hover{background:var(--paper);transform:translate(-3px,-3px);box-shadow:4px 4px 0 var(--red)}
+  .aud-cell .arr{font-family:'JetBrains Mono',monospace;color:var(--red);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .aud-cell .arr svg{width:16px;height:16px;stroke:var(--red);stroke-width:2.5;fill:none}
+  .aud-cell h4{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:.01em;margin-bottom:8px;line-height:1.05;color:var(--ink)}
+  @media(min-width:768px){.aud-cell h4{font-size:20px}}
+  .aud-cell p{font-size:13.5px;color:var(--ink-3);line-height:1.55}
+
+  /* === USP BAND === */
+  .usp{background:var(--ink);color:var(--paper);border-top:4px solid var(--red);border-bottom:4px solid var(--red);padding:60px 0;text-align:center;position:relative;overflow:hidden}
+  @media(min-width:768px){.usp{padding:88px 0}}
+  .usp::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0,transparent 20px,rgba(243,181,61,.04) 20px,rgba(243,181,61,.04) 21px);pointer-events:none}
+  .usp .container{position:relative;z-index:1}
+  .usp-eyebrow{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--yellow);font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:18px;padding-bottom:10px;border-bottom:1.5px dashed rgba(243,181,61,.4)}
+  .usp h2{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:clamp(32px,5.4vw,68px);text-transform:uppercase;letter-spacing:-.01em;line-height:.94;margin-bottom:16px;max-width:1100px;margin-left:auto;margin-right:auto}
+  .usp h2 .y{color:var(--yellow)}
+  .usp h2 .r{color:var(--red)}
+  .usp p{color:var(--paper);font-size:16.5px;max-width:760px;margin:0 auto;font-weight:500;opacity:.92}
+  @media(min-width:768px){.usp p{font-size:19px}}
+
+  /* === PRICING — QUOTATION === */
+  .pricing-b{background:var(--paper-2);border-top:2px solid var(--ink)}
+  .pricing-grid{display:grid;grid-template-columns:1fr;gap:28px;align-items:start}
+  @media(min-width:900px){.pricing-grid{grid-template-columns:1.2fr .8fr;gap:36px}}
+  .quote-card{background:var(--paper);border:2px solid var(--ink);padding:0;position:relative;box-shadow:8px 8px 0 var(--red);overflow:hidden}
+  .quote-head{background:var(--ink);color:var(--paper);padding:14px 22px;display:grid;grid-template-columns:1fr;gap:6px;border-bottom:2px solid var(--ink);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+  @media(min-width:520px){.quote-head{grid-template-columns:1fr auto;align-items:center;gap:14px}}
+  .quote-head .pn{color:var(--yellow);font-size:13px}
+  .quote-head .valid{color:var(--paper);opacity:.7}
+  .quote-body{padding:28px 22px}
+  @media(min-width:768px){.quote-body{padding:38px 32px}}
+  .quote-h3{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:30px;text-transform:uppercase;letter-spacing:.01em;margin-bottom:6px;line-height:1;color:var(--ink)}
+  @media(min-width:768px){.quote-h3{font-size:40px}}
+  .quote-meta{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:22px;padding-bottom:14px;border-bottom:1.5px dashed var(--ink)}
+  @media(min-width:768px){.quote-meta{font-size:13px}}
+  .price-row{display:flex;align-items:baseline;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+  .price-row .amt{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:62px;letter-spacing:-.02em;line-height:.95;color:var(--ink)}
+  @media(min-width:768px){.price-row .amt{font-size:88px}}
+  .price-row .rup{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:30px;color:var(--ink-3)}
+  @media(min-width:768px){.price-row .rup{font-size:36px}}
+  .price-row .strike{color:var(--graphite);text-decoration:line-through;font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace}
+  @media(min-width:768px){.price-row .strike{font-size:24px}}
+  .save-line{color:var(--red);font-weight:800;font-size:13px;margin-bottom:24px;text-transform:uppercase;letter-spacing:.06em;font-family:'JetBrains Mono',monospace}
+  @media(min-width:768px){.save-line{font-size:14px}}
+  .price-list{list-style:none;display:grid;gap:10px;margin-bottom:24px;background:var(--paper-2);border:1.5px solid var(--ink);padding:18px 18px;position:relative}
+  .price-list::before{content:"INCLUDED:";position:absolute;top:-10px;left:14px;background:var(--ink);color:var(--yellow);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.14em;padding:3px 8px;border:1.5px solid var(--ink)}
+  .price-list li{display:flex;gap:10px;align-items:flex-start;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink-2);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  @media(min-width:768px){.price-list li{font-size:13.5px}}
+  .price-list li svg{width:18px;height:18px;stroke:var(--red);stroke-width:3;flex-shrink:0;margin-top:1px;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+  .side-cards{display:grid;gap:14px}
+  .side-card{background:var(--paper);border:2px solid var(--ink);padding:0;overflow:hidden;transition:all .18s ease}
+  .side-card:hover{transform:translate(-3px,-3px);box-shadow:4px 4px 0 var(--red)}
+  .side-card-head{background:var(--ink);color:var(--paper);padding:8px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--ink)}
+  .side-card-head svg{width:15px;height:15px;stroke:var(--yellow);stroke-width:2.2;fill:none}
+  .side-card-body{padding:14px 18px}
+  .seat-bar{height:14px;background:var(--paper-3);border:2px solid var(--ink);overflow:hidden;margin-bottom:10px;position:relative}
+  .seat-bar::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,transparent 0,transparent 4px,var(--ink) 4px,var(--ink) 5px);opacity:.5}
+  .seat-fill{height:100%;background:var(--red);position:relative;width:70%}
+  .seat-fill::after{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,transparent 0,transparent 6px,rgba(244,237,217,.4) 6px,rgba(244,237,217,.4) 8px)}
+  .side-card p{font-size:13px;color:var(--ink-3);line-height:1.55;font-family:'JetBrains Mono',monospace}
+  .side-card p b{color:var(--red);font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:20px;display:inline-block;line-height:1}
+  .honest .side-card-head{background:var(--yellow);color:var(--ink)}
+  .honest{background:var(--yellow-soft,var(--paper))}
+  .honest .side-card-head svg{stroke:var(--ink)}
+
+  /* === GUARANTEE / INSPECTION SEAL === */
+  .guarantee{background:var(--paper);padding:48px 0;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);position:relative}
+  .gwrap{display:grid;grid-template-columns:1fr;gap:24px;align-items:center}
+  @media(min-width:800px){.gwrap{grid-template-columns:auto 1fr auto;gap:32px}}
+  .gseal{width:128px;height:128px;border:2px solid var(--ink);background:var(--yellow);display:grid;place-items:center;font-family:'Big Shoulders Display',sans-serif;text-align:center;line-height:.95;box-shadow:4px 4px 0 var(--red);margin:0 auto;position:relative;flex-shrink:0;color:var(--ink)}
+  @media(min-width:800px){.gseal{margin:0}}
+  .gseal::before{content:"";position:absolute;inset:6px;border:2px dashed var(--ink)}
+  .gseal .g1{font-size:11px;letter-spacing:.06em;font-weight:800;display:block;margin-top:6px}
+  .gseal .g2{font-size:32px;color:var(--red);font-weight:800;display:block;letter-spacing:-.02em}
+  .gseal .g3{font-size:11px;letter-spacing:.06em;font-weight:800;display:block}
+  .gtxt h3{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:24px;text-transform:uppercase;letter-spacing:.01em;line-height:1.05;margin-bottom:10px;color:var(--ink)}
+  @media(min-width:768px){.gtxt h3{font-size:30px}}
+  .gtxt p{font-size:15px;color:var(--ink-3);line-height:1.6}
+  .gcode{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink);background:var(--paper-3);padding:10px 14px;border:2px solid var(--ink);text-align:center;letter-spacing:.04em}
+  .gcode .lbl{color:var(--red);font-weight:700;text-transform:uppercase;display:block;font-size:10px;margin-bottom:4px;letter-spacing:.14em}
+
+  /* === FAQ === */
+  .faq{background:var(--paper)}
+  .faq-list{max-width:920px;display:grid;gap:0;border:2px solid var(--ink);background:var(--paper)}
+  .faq-item{border-bottom:2px solid var(--ink);background:var(--paper)}
+  .faq-item:last-child{border-bottom:none}
+  .faq-q{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;cursor:pointer;font-family:'Big Shoulders Display',sans-serif;font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.01em;transition:background .18s ease;line-height:1.2;gap:14px}
+  @media(min-width:768px){.faq-q{padding:22px 28px;font-size:19px}}
+  .faq-q:hover{background:var(--paper-2)}
+  .faq-q .qno{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);font-weight:800;background:var(--yellow);padding:4px 8px;border:1.5px solid var(--ink);margin-right:8px;flex-shrink:0;letter-spacing:.06em}
+  .faq-q .plus{width:30px;height:30px;background:var(--ink);color:var(--yellow);display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:800;transition:transform .3s;flex-shrink:0}
+  .faq-a{padding:0 20px 0 64px;max-height:0;overflow:hidden;transition:all .3s ease;color:var(--ink-3);font-size:14.5px;line-height:1.65;background:var(--paper-2)}
+  @media(min-width:768px){.faq-a{padding:0 28px 0 76px;font-size:15px}}
+  .faq-item.open .faq-a{max-height:600px;padding-top:0}
+  .faq-item.open .faq-a{padding-bottom:18px}
+  @media(min-width:768px){.faq-item.open .faq-a{padding-bottom:22px}}
+  .faq-item.open .plus{transform:rotate(45deg);background:var(--red);color:var(--paper)}
+  .faq-item.open .faq-q{background:var(--paper-2)}
+
+  /* === FINAL CTA === */
+  .final-cta{background:var(--ink);color:var(--paper);border-top:4px solid var(--red);border-bottom:4px solid var(--yellow);position:relative;overflow:hidden;padding:64px 0;text-align:center}
+  @media(min-width:768px){.final-cta{padding:96px 0}}
+  .final-cta::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(244,237,217,.06) 2px, transparent 2px),linear-gradient(90deg, rgba(244,237,217,.06) 2px, transparent 2px);background-size:60px 60px;pointer-events:none}
+  .final-cta .container{position:relative;z-index:1}
+  .final-cta .stamp-line{display:inline-block;background:var(--red);color:var(--paper);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.18em;padding:7px 16px;margin-bottom:16px;border:2px solid var(--paper);transform:rotate(-2deg);text-transform:uppercase}
+  .final-cta h2{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:clamp(40px,8vw,108px);letter-spacing:-.015em;line-height:.9;text-transform:uppercase;margin-bottom:24px;color:var(--paper)}
+  .final-cta h2 .y{color:var(--yellow)}
+  .final-cta h2 .r{color:var(--red)}
+  .final-cta h2 .ul{text-decoration:underline;text-decoration-color:var(--yellow);text-decoration-thickness:8px;text-underline-offset:8px}
+  .final-cta p{color:var(--paper);font-size:16.5px;max-width:640px;margin:0 auto 32px;opacity:.9;font-family:'JetBrains Mono',monospace;font-weight:500}
+  @media(min-width:768px){.final-cta p{font-size:18px}}
+  .final-cta .foot-rule{height:1.5px;background:var(--yellow);width:120px;margin:28px auto 0}
+  .final-cta .foot-note{margin-top:18px;font-family:'JetBrains Mono',monospace;color:var(--paper);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;display:flex;justify-content:center;gap:18px;flex-wrap:wrap;opacity:.85}
+  .final-cta .foot-note span{display:inline-flex;align-items:center;gap:6px}
+  .final-cta .foot-note svg{width:14px;height:14px;stroke:var(--yellow);stroke-width:2.5;fill:none}
+
+  /* === FOOTER === */
+  footer{background:var(--ink-2);color:#cfc6a8;padding:34px 0;font-size:13px;border-top:4px solid var(--red)}
+  .foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+  .foot a{color:var(--paper);font-weight:600}
+  .foot a:hover{color:var(--yellow)}
+  .foot-links{display:flex;gap:14px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;text-transform:uppercase;font-size:11px;letter-spacing:.1em}
+  .foot .geo{font-family:'JetBrains Mono',monospace;color:var(--red);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:11px}
+
+  /* === FLOATING APPLY === */
+  .float-apply{
+    position:fixed;bottom:16px;right:16px;z-index:60;background:var(--yellow);color:var(--ink);
+    padding:11px 16px;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.08em;
+    box-shadow:3px 3px 0 var(--red);border:2px solid var(--ink);display:flex;align-items:center;gap:8px;transition:all .18s ease;cursor:pointer;
+  }
+  @media(min-width:768px){.float-apply{bottom:22px;right:22px;padding:13px 20px;font-size:13px;box-shadow:4px 4px 0 var(--red)}}
+  .float-apply:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--red)}
+  .float-apply svg{width:14px;height:14px;stroke:var(--ink);stroke-width:2.5;fill:none}
+
+  /* === LEAD POPUP FORM === */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(22,49,78,.85);z-index:100;display:none;align-items:center;justify-content:padding:16px;overflow-y:auto;backdrop-filter:blur(4px)}
+  .modal-backdrop.open{display:flex}
+  .modal{background:var(--paper);border:2px solid var(--ink);box-shadow:8px 8px 0 var(--red);max-width:580px;width:100%;position:relative;max-height:calc(100vh - 32px);overflow-y:auto;margin:auto;background-image:linear-gradient(var(--line) 1px, transparent 1px),linear-gradient(90deg, var(--line) 1px, transparent 1px);background-size:24px 24px}
+  .modal-head{background:var(--ink);color:var(--paper);padding:22px 22px 20px;position:relative}
+  .modal-head::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--red);background-image:repeating-linear-gradient(90deg,var(--yellow) 0,var(--yellow) 20px,transparent 20px,transparent 30px)}
+  .modal-close{position:absolute;top:12px;right:12px;background:transparent;border:2px solid var(--paper);color:var(--paper);width:32px;height:32px;display:grid;place-items:center;cursor:pointer;transition:all .15s ease;font-family:'JetBrains Mono',monospace;font-weight:800}
+  .modal-close:hover{background:var(--yellow);color:var(--ink);border-color:var(--yellow)}
+  .modal-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--yellow);font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+  .modal-title{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:23px;text-transform:uppercase;letter-spacing:.01em;line-height:1.0;margin-bottom:8px}
+  @media(min-width:520px){.modal-title{font-size:28px}}
+  .modal-title .y{color:var(--yellow)}
+  .modal-title .r{color:var(--red)}
+  .modal-sub{font-size:13.5px;color:#cfc6a8;line-height:1.5;font-family:'JetBrains Mono',monospace}
+  .modal-body{padding:22px;background:var(--paper)}
+  .progress-bar{height:8px;background:var(--paper-3);border:2px solid var(--ink);margin-bottom:22px;overflow:hidden;position:relative}
+  .progress-fill{height:100%;background:var(--red);width:0%;transition:width .3s ease;background-image:repeating-linear-gradient(45deg,transparent 0,transparent 6px,rgba(244,237,217,.3) 6px,rgba(244,237,217,.3) 8px)}
+  .step{display:none;animation:fadeIn .3s ease}
+  .step.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .step-title{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:.01em;line-height:1.15;margin-bottom:6px}
+  .step-hint{font-size:12.5px;color:var(--ink-3);margin-bottom:18px;font-family:'JetBrains Mono',monospace;background:var(--paper-2);padding:8px 12px;border-left:3px solid var(--red)}
+  .form-group{margin-bottom:14px}
+  .form-label{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink);margin-bottom:6px}
+  .form-label .step-num{background:var(--yellow);color:var(--ink);padding:1px 6px;border:1.5px solid var(--ink);font-weight:800}
+  .form-label .req{color:var(--red)}
+  .form-input,.form-select,.form-textarea{width:100%;padding:12px 14px;border:2px solid var(--ink);background:var(--paper);font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--ink);transition:all .15s ease;font-weight:500}
+  .form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;box-shadow:3px 3px 0 var(--red);transform:translate(-1px,-1px)}
+  .form-textarea{resize:vertical;min-height:80px;font-family:inherit}
+  .radio-group{display:grid;gap:8px}
+  .radio-opt{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;background:var(--paper);border:2px solid var(--ink);cursor:pointer;transition:all .15s ease}
+  .radio-opt:hover{background:var(--paper-2)}
+  .radio-opt input[type="radio"],.radio-opt input[type="checkbox"]{margin-top:2px;accent-color:var(--red);width:16px;height:16px;flex-shrink:0}
+  .radio-opt.selected{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .radio-opt .rlabel{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
+  .radio-opt .rmeta{display:block;font-family:'Inter',sans-serif;font-size:11.5px;color:var(--ink-3);margin-top:3px;font-weight:500;text-transform:none;letter-spacing:0}
+  .radio-opt.selected .rmeta{color:#cfc6a8}
+  .modal-footer{padding:16px 22px 22px;background:var(--paper);border-top:1.5px dashed var(--ink);display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+  .modal-footer .stepmeta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  .modal-footer .stepmeta b{color:var(--red)}
+  .modal-footer .btn-row{display:flex;gap:10px}
+  .modal-footer .btn{padding:11px 18px;font-size:12px}
+
+  .success-view{padding:36px 22px;text-align:center;background:var(--paper)}
+  .success-view .sic{width:78px;height:78px;background:var(--success);border:2px solid var(--ink);display:grid;place-items:center;margin:0 auto 18px;box-shadow:4px 4px 0 var(--ink)}
+  .success-view .sic svg{width:42px;height:42px;stroke:var(--paper);stroke-width:3.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .success-view .stamp{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--red);font-weight:700;letter-spacing:.18em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:5px 12px;border:2px solid var(--ink);margin-bottom:14px;transform:rotate(-2deg)}
+  .success-view h3{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:28px;text-transform:uppercase;letter-spacing:.01em;margin-bottom:10px}
+  .success-view p{font-size:14.5px;color:var(--ink-3);max-width:420px;margin:0 auto 20px;line-height:1.6}
+  .success-view .swhat{background:var(--paper-2);border:2px solid var(--ink);padding:18px;text-align:left;max-width:420px;margin:0 auto 22px}
+  .success-view .swhat h5{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--red);font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;border-bottom:1.5px dashed var(--ink);padding-bottom:6px}
+  .success-view .swhat ul{list-style:none;display:grid;gap:8px;font-size:13.5px;font-family:'JetBrains Mono',monospace}
+  .success-view .swhat li{display:flex;gap:8px;align-items:flex-start;text-transform:uppercase;letter-spacing:.04em}
+  .success-view .swhat li svg{width:15px;height:15px;stroke:var(--red);stroke-width:2.5;flex-shrink:0;margin-top:1px;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+  /* === COUNTDOWN === */
+  .countdown{background:var(--yellow);color:var(--ink);border-bottom:2px solid var(--ink);padding:12px 0;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px}
+  @media(min-width:768px){.countdown{font-size:13px}}
+  .countdown .timer{display:inline-flex;gap:5px}
+  .countdown .timer span{background:var(--ink);color:var(--yellow);padding:3px 8px;font-family:'Big Shoulders Display',sans-serif;font-weight:800;letter-spacing:.02em;font-size:15px;border:1.5px solid var(--ink)}
+
+  .center{text-align:center}
+</style>
+</head>
+<body>
+
+<!-- TOP RULER TICKS -->
+<div class="ruler"></div>
+
+<!-- SPEC STRIP -->
+<div class="spec-strip">
+  <div class="container">
+    <div class="grp gp1"><span><span class="dot pulse"></span> <span class="lbl">LIVE</span> · COHORT 03 ENROLLMENT OPEN</span></div>
+    <div class="grp gp2">
+      <span>DWG · DD-RC03-26</span>
+      <span>REV · 03.07</span>
+      <span>PAGE · 1/1</span>
+    </div>
+    <div class="grp gp1"><span>FILED · BENGALURU, IN</span></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="brand">
+      <div class="brand-mark">DD</div>
+      <span>Datadives<span class="ver">v3.07</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#problem">DIAGNOSIS</a>
+      <a href="#proof">PROOF</a>
+      <a href="#curriculum">PARTS LIST</a>
+      <a href="#projects">SHOP</a>
+      <a href="#pricing">QUOTE</a>
+      <a href="#faq">INQ.</a>
+    </div>
+    <button class="btn btn-primary" data-open-form data-source="nav">Submit Application →</button>
+  </div>
+</nav>
+
+<!-- COUNTDOWN -->
+<div class="countdown">
+  <svg class="icon icon-sm" style="stroke:var(--ink);vertical-align:middle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+  EARLY-BIRD PRICING CUTOFF IN
+  <span class="timer" id="timer">
+    <span id="dd">02</span>d
+    <span id="hh">14</span>h
+    <span id="mm">27</span>m
+    <span id="ss">55</span>s
+  </span>
+</div>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container hero-inner" style="position:relative">
+    <span class="regmarks reg-tl"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+    <span class="regmarks reg-tr"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+    <span class="regmarks reg-bl"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+    <span class="regmarks reg-br"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+
+    <div class="hero-framemark"></div>
+
+    <span class="hero-tag"><span class="pulse"></span> DATA ENGINEER RESIDENCY · COHORT 03 · MAX 10 SEATS</span>
+
+    <h1 class="hero-title">
+      <span class="row">An engineer</span>
+      <span class="row">is <span class="yellow-block">BUILT</span>,</span>
+      <span class="row">not <span class="strike">enrolled.</span></span>
+    </h1>
+
+    <div class="hero-flex">
+      <div>
+        <p class="hero-lede">
+          You've watched the courses. You've collected the certificates. And your inbox is still empty. <b>That's not because you lack talent</b> — it's because nobody hires "watched 100 hours of tutorials." They hire engineers who've shipped things that don't break at 2am.
+        </p>
+        <p class="hero-lede ln2" style="margin-top:-8px">
+          Over 12 weeks we put you inside real production data systems — Kafka, Spark, dbt, Airflow, AWS — with senior engineers reviewing your pull requests every Friday. You leave with GitHub repos recruiters actually open.
+        </p>
+
+        <div class="hero-ctas">
+          <button class="btn btn-primary btn-lg" data-open-form data-source="hero-primary">Reserve My Seat <span class="arr">→</span></button>
+          <a href="#curriculum" class="btn btn-outline btn-lg">Inspect Curriculum</a>
+        </div>
+
+        <div class="spec-block">
+          <div class="spec-block-head">
+            <span>QUOTATION · Q-DD-2026-C03</span>
+            <span class="pn">VALID · 48H</span>
+          </div>
+          <dl class="spec-block-body">
+            <dt>Tier:</dt><dd>EARLY-BIRD</dd>
+            <dt>List:</dt><dd><span class="old">₹59,999</span> <span class="new">₹49,999</span></dd>
+            <dt>Savings:</dt><dd>₹10,000 · 16.6%</dd>
+            <dt>Seats Left:</dt><dd style="color:var(--red)">03 / 10</dd>
+          </dl>
+        </div>
+      </div>
+
+      <div class="drawing-wrap">
+        <span class="spec-sticker tr">Spec it.<br/>Build it.<br/><u>Ship it</u>.</span>
+        <div class="drawing-head">
+          <span>BILL OF PROCESSES · DD-CAPSTONE</span>
+          <span class="sc">SCALE 1:1</span>
+        </div>
+        <div class="drawing-body">
+          <div class="drawing-title">
+            Realtime Pipeline · Cohort 02 Capstone
+            <span class="stamp">SHIPPED</span>
+          </div>
+          <div class="schematic">
+            <div class="scm-row-v"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>
+            <div class="scm-row">
+              <div class="scm-node">
+                <div class="ix"><svg viewBox="0 0 24 24"><path d="M12 2v14M6 10l6 6 6-6M4 20h16"/></svg></div>
+                <div class="nm">KAFKA</div><span class="lb">Ingest</span>
+              </div>
+              <span class="scm-arrow">›</span>
+              <div class="scm-node">
+                <div class="ix"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+                <div class="nm">SPARK</div><span class="lb">Process</span>
+              </div>
+              <span class="scm-arrow">›</span>
+              <div class="scm-node">
+                <div class="ix"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></div>
+                <div class="nm">DELTA</div><span class="lb">Store</span>
+              </div>
+              <span class="scm-arrow">›</span>
+              <div class="scm-node">
+                <div class="ix"><svg viewBox="0 0 24 24"><path d="M4 4h16v6H4zM4 14h16v6H4z"/><path d="M8 10v4M16 10v4"/></svg></div>
+                <div class="nm">DBT</div><span class="lb">Transform</span>
+              </div>
+              <span class="scm-arrow">›</span>
+              <div class="scm-node">
+                <div class="ix"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M8 17V9M13 17v-4M18 17v-6"/></svg></div>
+                <div class="nm">BI</div><span class="lb">Analyze</span>
+              </div>
+            </div>
+            <div class="scm-row-v"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>
+          </div>
+          <div class="drawing-checks">
+            <div class="drawing-check"><span class="cb">✓</span> End-to-end production pipelines</div>
+            <div class="drawing-check"><span class="cb">✓</span> Same stack we'd ship to a paying client</div>
+            <div class="drawing-check"><span class="cb">✓</span> Reviewed weekly by a senior engineer</div>
+            <div class="drawing-check"><span class="cb">✓</span> Public GitHub · recruiter-visible</div>
+          </div>
+        </div>
+        <span class="spec-sticker bl">No lectures.<br/>No filler.<br/>Real work.</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="section-rule"></div>
+
+<!-- TRUST STRIP -->
+<div class="trust-strip">
+  <div class="trust-inner">
+    <div class="trust-cell">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <div class="num">10</div><div class="lbl">SEATS / BATCH</div>
+    </div>
+    <div class="trust-cell">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <div class="num">12</div><div class="lbl">WEEKS · LIVE</div>
+    </div>
+    <div class="trust-cell">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <div class="num">1:1</div><div class="lbl">PR REVIEW</div>
+    </div>
+    <div class="trust-cell">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      <div class="num">100%</div><div class="lbl">REMOTE · IN</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPANY LOGOS -->
+<div class="proof-band" id="proof">
+  <div class="container">
+    <div class="proof-lbl"><span class="b">▣</span> MENTORS HAVE SHIPPED PRODUCTION DATA INFRA AT <span class="b">▣</span></div>
+    <div class="logo-row">
+      <span class="plogo"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> AMZN</span>
+      <span class="plogo"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg> MSFT</span>
+      <span class="plogo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> FLPK</span>
+      <span class="plogo"><svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg> SWIGGY</span>
+      <span class="plogo"><svg viewBox="0 0 24 24"><path d="M9 9h6v6H9z"/></svg> RZP</span>
+      <span class="plogo"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 12h16"/></svg> MSHO</span>
+      <span class="plogo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> ZMT</span>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem" style="position:relative">
+  <span class="regmarks reg-tl"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+  <span class="regmarks reg-tr"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+  <span class="regmarks reg-bl"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+  <span class="regmarks reg-br"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+  <div class="container">
+    <div class="problem-grid">
+      <div>
+        <span class="eyebrow r">FIELD DIAGNOSIS <span class="num">A-01</span></span>
+        <h2 class="section-title">Certificates<br/>don't <span class="a">build</span><br/>careers.<br/><span class="u">Engineering</span> does.</h2>
+        <p class="section-sub">Here's the uncomfortable truth: hiring managers spend 6 seconds on your resume. They aren't reading your course list — they're scanning for <b style="color:var(--ink)">proof you can build systems that don't fall over at 2am</b>. If you can't show that, you don't get the call. That's the whole game.</p>
+        <button class="btn btn-red btn-lg" data-open-form data-source="problem">Run Qualification Check <span class="arr">→</span></button>
+      </div>
+      <div class="pain-stack">
+        <div class="pain-row" data-no="FLT-01">
+          <div class="ix">01</div>
+          <div>
+            <h4>"I've learned a lot but can't build anything real."</h4>
+            <p>Tutorials gave you syntax — not partitioning strategy, not idempotent DAGs, not what "eventual consistency" actually costs you at 3am with prod on fire.</p>
+            <span class="pain-callout">— root cause: no live reflection from a senior</span>
+          </div>
+        </div>
+        <div class="pain-row" data-no="FLT-02">
+          <div class="ix">02</div>
+          <div>
+            <h4>"My GitHub looks identical to everyone else's."</h4>
+            <p>Fifteen forks of Kaggle notebooks. One Titanic repo. Recruiters have seen it a thousand times. It won't get you past the screen anymore.</p>
+            <span class="pain-callout">— root cause: only solo toy projects shipped</span>
+          </div>
+        </div>
+        <div class="pain-row" data-no="FLT-03">
+          <div class="ix">03</div>
+          <div>
+            <h4>"I apply. I never hear back."</h4>
+            <p>"Course complete" reads like every other application. "Shipped a Kafka→Spark→Delta pipeline, reviewed by a senior" reads like the candidate they want.</p>
+            <span class="pain-callout">— root cause: signal ≠ proof of build</span>
+          </div>
+        </div>
+        <div class="pain-row" data-no="FLT-04">
+          <div class="ix">04</div>
+          <div>
+            <h4>"I don't know what companies actually need."</h4>
+            <p>Nobody's torn apart your PR. No architect has asked "why this design?" That's the missing rep — and it's the only one that compounds.</p>
+            <span class="pain-callout">— root cause: no senior in the loop</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MENTORS REVIEW BOARD -->
+<section class="mentors">
+  <div class="container">
+    <span class="eyebrow">REVIEW BOARD <span class="num">B-01</span></span>
+    <h2 class="section-title">Your work is reviewed by<br/>engineers who've <span class="a">actually built</span><br/>the systems you want to run.</h2>
+    <p class="section-sub">Not YouTubers. Not "certified instructors." Working senior data engineers who've been on-call for the pipelines you're learning to build. This is who tears apart your PR every Friday afternoon.</p>
+
+    <div class="mentor-grid">
+      <div class="mentor">
+        <div class="mentor-row1"><span>FILE · M-001</span><span class="role">FOUNDER · 12 YRS</span></div>
+        <div class="mentor-body">
+          <div class="mentor-head">
+            <div class="mentor-avatar">SK</div>
+            <div>
+              <div class="mentor-name">Sourabh K.</div>
+              <div class="mentor-tenure">Data Platform Lead</div>
+            </div>
+          </div>
+          <p class="mentor-bio">Built data platforms across fintech and e-commerce. Runs Datadives — billable data infra to enterprises while training the next batch of engineers.</p>
+          <div class="mentor-tags"><span>AIRFLOW</span><span>SPARK</span><span>AWS</span><span>DATA MODELING</span></div>
+          <div class="mentor-sign"><span class="star">★ SIGNED-OFF · C02</span><span>v3.07</span></div>
+        </div>
+      </div>
+      <div class="mentor">
+        <div class="mentor-row1"><span>FILE · M-002</span><span class="role">SENIOR DE · STREAMING</span></div>
+        <div class="mentor-body">
+          <div class="mentor-head">
+            <div class="mentor-avatar">RM</div>
+            <div>
+              <div class="mentor-name">Rahul M.</div>
+              <div class="mentor-tenure">Streaming Architect</div>
+            </div>
+          </div>
+          <p class="mentor-bio">Owns real-time infra at a fintech unicorn. Runs Kafka at a scale most residents will only read about — and reviews your streaming project weekly.</p>
+          <div class="mentor-tags"><span>KAFKA</span><span>FLINK</span><span>DELTA</span><span>K8S</span></div>
+          <div class="mentor-sign"><span class="star">★ SIGNED-OFF · C02</span><span>v3.07</span></div>
+        </div>
+      </div>
+      <div class="mentor">
+        <div class="mentor-row1"><span>FILE · M-003</span><span class="role">ANALYTICS ENG · DBT</span></div>
+        <div class="mentor-body">
+          <div class="mentor-head">
+            <div class="mentor-avatar">PN</div>
+            <div>
+              <div class="mentor-name">Priya N.</div>
+              <div class="mentor-tenure">Lead Analytics Engineer</div>
+            </div>
+          </div>
+          <p class="mentor-bio">Lead analytics engineer at a Series-C SaaS. Ships dbt models the whole company runs on. Will make you rewrite your first three models — for good reason.</p>
+          <div class="mentor-tags"><span>DBT</span><span>SNOWFLAKE</span><span>DATA MODELING</span><span>SQL</span></div>
+          <div class="mentor-sign"><span class="star">★ SIGNED-OFF · C01</span><span>v2.04</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS — FIELD REPORTS -->
+<section class="testimonials">
+  <div class="container">
+    <span class="eyebrow y">FIELD REPORTS <span class="num">C-01</span></span>
+    <h2 class="section-title">"I stopped applying blind.<br/>Started getting <span class="a">calls</span>."</h2>
+    <p class="section-sub">Feedback from our first two cohorts. Full LinkedIn threads and interview screenshots are in your welcome kit once you're accepted.</p>
+
+    <div class="tgrid">
+      <div class="tcard">
+        <div class="tcard-head"><span class="pn">REPORT · FR-001</span><span class="dt">08 / 26</span></div>
+        <div class="tcard-body">
+          <span class="qm">"</span>
+          <div class="tcard-stars">
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+          </div>
+          <blockquote>"// before: folder of certs, zero callbacks<br/>// after capstone: could explain <b>why</b> I chose Delta over Iceberg<br/>// outcome: every interview changed"</blockquote>
+          <div class="tperson">
+            <div class="tperson-avatar">AV</div>
+            <div>
+              <div class="tperson-name">Aditya V.</div>
+              <div class="tperson-meta">COHORT 01 · BPL → BLR</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-head"><span class="pn">REPORT · FR-002</span><span class="dt">09 / 26</span></div>
+        <div class="tcard-body">
+          <span class="qm">"</span>
+          <div class="tcard-stars">
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+          </div>
+          <blockquote>"// PR review no. 001: 42 comments<br/>// PR review no. 042: 3 comments<br/>// <b>that arc</b> is the residency."</blockquote>
+          <div class="tperson">
+            <div class="tperson-avatar">SR</div>
+            <div>
+              <div class="tperson-name">Sneha R.</div>
+              <div class="tperson-meta">COHORT 02 · PUNE · BCA</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-head"><span class="pn">REPORT · FR-003</span><span class="dt">09 / 26</span></div>
+        <div class="tcard-body">
+          <span class="qm">"</span>
+          <div class="tcard-stars">
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+          </div>
+          <blockquote>"// I had 6 Coursera certs. Zero interviews.<br/>// Datadives: first line on my resume I can <b>actually defend</b>.<br/>// 2 offers by C02 demo day."</blockquote>
+          <div class="tperson">
+            <div class="tperson-avatar">KP</div>
+            <div>
+              <div class="tperson-name">Karan P.</div>
+              <div class="tperson-meta">COHORT 02 · JAIPUR · MCA</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION — SPEC SHEET -->
+<section style="position:relative">
+  <div class="container">
+    <span class="eyebrow">SOLUTION SHEET <span class="num">D-01</span></span>
+    <h2 class="section-title">Not a course.<br/>A <span class="u">residency</span>.</h2>
+    <p class="section-sub">Doctors don't learn surgery on YouTube — they do rounds under a senior. Architects don't design buildings from a PDF — they draft under a principal. We somehow decided engineers should learn on their own. We're repairing that defect.</p>
+
+    <div class="pillars-grid">
+      <div class="pillar">
+        <div class="pillar-head"><span>SPEC · S-01</span><span class="pn">FEA</span></div>
+        <div class="pillar-body">
+          <div class="pillar-num-big">/01<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+          <h4>Real Projects</h4>
+          <p>Production-grade data systems from day one. Same brief we'd ship to a paying client. No toy datasets scraped from Kaggle.</p>
+          <span class="pillar-tag">▸ Made for hire</span>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-head"><span>SPEC · S-02</span><span class="pn">HR</span></div>
+        <div class="pillar-body">
+          <div class="pillar-num-big">/02<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <h4>Senior Engineers</h4>
+          <p>The reviewers are on-call for pipelines running in production right now. That's a different than a YouTube tutorial.</p>
+          <span class="pillar-tag">▸ Operating, not theorising</span>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-head"><span>SPEC · S-03</span><span class="pn">R&D</span></div>
+        <div class="pillar-body">
+          <div class="pillar-num-big">/03<svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+          <h4>Weekly PR Reviews</h4>
+          <p>Every Friday your code gets torn apart by a senior. Uncomfortable. Necessary. The single fastest way an engineer improves.</p>
+          <span class="pillar-tag">▸ Push, get reviewed, push again</span>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-head"><span>SPEC · S-04</span><span class="pn">QA</span></div>
+        <div class="pillar-body">
+          <div class="pillar-num-big">/04<svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+          <h4>Hire-able Portfolio</h4>
+          <p>You leave with 3–5 GitHub projects a recruiter can't scroll past. Architecture diagrams, tests, docs — the whole thing.</p>
+          <span class="pillar-tag">▸ Built-in portfolio</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STACK TICKER -->
+<div class="stack-ticker">
+  <div class="stack-track">
+    <span>PYTHON</span><span class="pipe">|</span>
+    <span>SQL</span><span class="pipe">|</span>
+    <span>KAFKA</span><span class="pipe">|</span>
+    <span>SPARK</span><span class="pipe">|</span>
+    <span>AIRFLOW</span><span class="pipe">|</span>
+    <span>DBT</span><span class="pipe">|</span>
+    <span>DOCKER</span><span class="pipe">|</span>
+    <span>AWS</span><span class="pipe">|</span>
+    <span>DELTA LAKE</span><span class="pipe">|</span>
+    <span>SNOWFLAKE</span><span class="pipe">|</span>
+    <span>BIGQUERY</span><span class="pipe">|</span>
+    <span>SUPERSET</span><span class="pipe">|</span>
+    <span>POWER BI</span><span class="sep">◆</span>
+    <span>PYTHON</span><span class="pipe">|</span>
+    <span>SQL</span><span class="pipe">|</span>
+    <span>KAFKA</span><span class="pipe">|</span>
+    <span>SPARK</span><span class="pipe">|</span>
+    <span>AIRFLOW</span><span class="pipe">|</span>
+    <span>DBT</span><span class="pipe">|</span>
+    <span>DOCKER</span><span class="pipe">|</span>
+    <span>AWS</span><span class="pipe">|</span>
+  </div>
+</div>
+
+<!-- PROJECTS — DELIVERED PROTOTYPES -->
+<section class="projects" id="projects">
+  <div class="container">
+    <span class="eyebrow">DELIVERED PROTOTYPES <span class="num">E-01</span></span>
+    <h2 class="section-title">Actual work past residents shipped.<br/><span class="a">Not slideware.</span></h2>
+    <p class="section-sub">These are real capstone shapes past cohorts delivered — reviewed against the same standards we bill enterprise clients on. You'll leave with something in this range on your GitHub.</p>
+
+    <div class="pgrid">
+      <div class="pcard">
+        <div class="pcard-head">
+          <span class="plabel">▣ STREAMING ANALYTICS</span>
+          <span class="pweek">C02 · WK 11-12</span>
+        </div>
+        <div class="pcard-render">
+          <span class="r-lbl">FIG · 01 — INGEST→BI PIPELINE</span>
+          <span class="r-corner">REV 03.07</span>
+          <svg viewBox="0 0 320 70" style="width:100%;height:60px;margin-top:4px">
+            <line x1="10" y1="35" x2="310" y2="35" stroke="#16314e" stroke-width="2"/>
+            <g>
+              <rect x="14" y="20" width="40" height="30" fill="#f3b53d" stroke="#16314e" stroke-width="2"/>
+              <text x="34" y="40" text-anchor="middle" fill="#16314e" font-family="JetBrains Mono" font-size="9" font-weight="700">KAFKA</text>
+              <polygon points="55,30 64,35 55,40" fill="#16314e"/>
+              <rect x="66" y="20" width="40" height="30" fill="#f3b53d" stroke="#16314e" stroke-width="2"/>
+              <text x="86" y="40" text-anchor="middle" fill="#16314e" font-family="JetBrains Mono" font-size="9" font-weight="700">SPARK</text>
+              <polygon points="107,30 116,35 107,40" fill="#16314e"/>
+              <rect x="118" y="20" width="40" height="30" fill="#f3b53d" stroke="#16314e" stroke-width="2"/>
+              <text x="138" y="40" text-anchor="middle" fill="#16314e" font-family="JetBrains Mono" font-size="9" font-weight="700">DELTA</text>
+              <polygon points="159,30 168,35 159,40" fill="#16314e"/>
+              <rect x="170" y="20" width="40" height="30" fill="#f3b53d" stroke="#16314e" stroke-width="2"/>
+              <text x="190" y="40" text-anchor="middle" fill="#16314e" font-family="JetBrains Mono" font-size="9" font-weight="700">DBT</text>
+              <polygon points="211,30 220,35 211,40" fill="#16314e"/>
+              <rect x="222" y="20" width="40" height="30" fill="#c8482b" stroke="#16314e" stroke-width="2"/>
+              <text x="242" y="40" text-anchor="middle" fill="#f4edd9" font-family="JetBrains Mono" font-size="9" font-weight="700">BI</text>
+              <polygon points="263,30 272,35 263,40" fill="#16314e"/>
+              <rect x="274" y="20" width="40" height="30" fill="#2a6b7c" stroke="#16314e" stroke-width="2"/>
+              <text x="294" y="40" text-anchor="middle" fill="#f4edd9" font-family="JetBrains Mono" font-size="9" font-weight="700">USR</text>
+            </g>
+          </svg>
+        </div>
+        <div class="pcard-body">
+          <h4>Realtime User-Activity Pipeline</h4>
+          <p>End-to-end pipeline ingesting 50K+ events/min from a mock e-commerce app. Kafka → Spark Structured Streaming → Delta → dbt marts → live Superset dashboard.</p>
+          <div class="stack"><span>KAFKA</span><span>SPARK STREAMING</span><span>DELTA LAKE</span><span>DBT</span><span>SUPERSET</span></div>
+        </div>
+        <div class="pcard-outcomes">
+          <div class="pout"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> SUB-30S P95 EVT-TO-DASH LATENCY</div>
+          <div class="pout"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> IDEMPOTENT WRITES + SCHEMA EVOLUTION</div>
+          <div class="pout"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> FULL RUNBOOK + ADR DOCS</div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-head">
+          <span class="plabel">▣ BATCH + WAREHOUSE</span>
+          <span class="pweek">C01 · WK 11-12</span>
+        </div>
+        <div class="pcard-render">
+          <span class="r-lbl">FIG · 02 — REPORTING WAREHOUSE</span>
+          <span class="r-corner">REV 02.04</span>
+          <svg viewBox="0 0 320 70" style="width:100%;height:60px;margin-top:4px">
+            <line x1="10" y1="35" x2="310" y2="35" stroke="#16314e" stroke-width="2"/>
+            <g>
+              <rect x="14" y="20" width="44" height="30" fill="#f3b53d" stroke="#16314e" stroke-width="2"/>
+              <text x="36" y="40" text-anchor="middle" fill="#16314e" font-family="JetBrains Mono" font-size="9" font-weight="700">S3 RAW</text>
+              <polygon points="59,30 68,35 59,40" fill="#16314e"/>
+              <rect x="70" y="20" width="44" height="30" fill="#2a6b7c" stroke="#16314e" stroke-width="2"/>
+              <text x="92" y="40" text-anchor="middle" fill="#f4edd9" font-family="JetBrains Mono" font-size="9" font-weight="700">AIRFLOW</text>
+              <polygon points="115,30 124,35 115,40" fill="#16314e"/>
+              <rect x="126" y="20" width="44" height="30" fill="#f3b53d" stroke="#16314e" stroke-width="2"/>
+              <text x="148" y="40" text-anchor="middle" fill="#16314e" font-family="JetBrains Mono" font-size="9" font-weight="700">SNOWFLAKE</text>
+              <polygon points="171,30 180,35 171,40" fill="#16314e"/>
+              <rect x="182" y="20" width="44" height="30" fill="#f3b53d" stroke="#16314e" stroke-width="2"/>
+              <text x="204" y="40" text-anchor="middle" fill="#16314e" font-family="JetBrains Mono" font-size="9" font-weight="700">DBT</text>
+              <polygon points="227,30 236,35 227,40" fill="#16314e"/>
+              <rect x="238" y="20" width="68" height="30" fill="#c8482b" stroke="#16314e" stroke-width="2"/>
+              <text x="272" y="40" text-anchor="middle" fill="#f4edd9" font-family="JetBrains Mono" font-size="9" font-weight="700">POWER BI</text>
+            </g>
+          </svg>
+        </div>
+        <div class="pcard-body">
+          <h4>Fintech Reporting Warehouse</h4>
+          <p>Ingest 3 upstream sources into S3 raw, transform via dbt into Kimball-style marts on Snowflake, orchestrate with Airflow, expose to Power BI.</p>
+          <div class="stack"><span>AIRFLOW</span><span>DBT</span><span>SNOWFLAKE</span><span>S3</span><span>POWER BI</span></div>
+        </div>
+        <div class="pcard-outcomes">
+          <div class="pout"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> 40+ DBT MODELS · 120+ TESTS · FULL CI</div>
+          <div class="pout"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> SCD2 ON CUSTOMER + PRODUCT DIMENSIONS</div>
+          <div class="pout"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> DATA QUALITY DASHBOARD + ALERTING</div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-head">
+          <span class="plabel">▣ DATA QUALITY</span>
+          <span class="pweek">C02 · WK 8-10</span>
+        </div>
+        <div class="pcard-render">
+          <span class="r-lbl">FIG · 03 — DQ OBSERVABILITY</span>
+          <span class="r-corner">REV 03.05</span>
+          <svg viewBox="0 0 320 70" style="width:100%;height:60px;margin-top:4px">
+            <line x1="10" y1="35" x2="310" y2="35" stroke="#16314e" stroke-width="2"/>
+            <rect x="14" y="20" width="50" height="30" fill="#f3b53d" stroke="#16314e" stroke-width="2"/>
+            <text x="39" y="40" text-anchor="middle" fill="#16314e" font-family="JetBrains Mono" font-size="9" font-weight="700">SOURCES</text>
+            <line x1="64" y1="35" x2="100" y2="35" stroke="#c8482b" stroke-width="3"/>
+            <rect x="100" y="20" width="50" height="30" fill="#2a6b7c" stroke="#16314e" stroke-width="2"/>
+            <text x="125" y="40" text-anchor="middle" fill="#f4edd9" font-family="JetBrains Mono" font-size="9" font-weight="700">INSPECT</text>
+            <line x1="150" y1="35" x2="186" y2="35" stroke="#c8482b" stroke-width="3"/>
+            <rect x="186" y="20" width="50" height="30" fill="#f3b53d" stroke="#16314e" stroke-width="2"/>
+            <text x="211" y="40" text-anchor="middle" fill="#16314e" font-family="JetBrains Mono" font-size="9" font-weight="700">CHECKS</text>
+            <line x1="236" y1="35" x2="272" y2="35" stroke="#c8482b" stroke-width="3"/>
+            <rect x="272" y="20" width="42" height="30" fill="#c8482b" stroke="#16314e" stroke-width="2"/>
+            <text x="293" y="40" text-anchor="middle" fill="#f4edd9" font-family="JetBrains Mono" font-size="9" font-weight="700">PAGE</text>
+          </svg>
+        </div>
+        <div class="pcard-body">
+          <h4>Data Quality Observability Layer</h4>
+          <p>Soda + Great Expectations contracts across 80+ tables. Slack alerting, lineage graph, anomaly detection on freshness/volume/null rates.</p>
+          <div class="stack"><span>SODA</span><span>GREAT EXPECTATIONS</span><span>SLACK API</span><span>LINEAGE</span><span>METABASE</span></div>
+        </div>
+        <div class="pcard-outcomes">
+          <div class="pout"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> 80+ DQ CONTRACTS · 95% AUTOMATED</div>
+          <div class="pout"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> FRESHNESS SLA 99.5% · VOLUME ALERTS</div>
+          <div class="pout"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> INCIDENT POSTMORTEM TEMPLATE</div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-head">
+          <span class="plabel">▣ ML FEATURE STORE</span>
+          <span class="pweek">C01 · WK 9-11</span>
+        </div>
+        <div class="pcard-render">
+          <span class="r-lbl">FIG · 04 — FEATURE PLATFORM</span>
+          <span class="r-corner">REV 02.06</span>
+          <svg viewBox="0 0 320 70" style="width:100%;height:60px;margin-top:4px">
+            <line x1="10" y1="35" x2="310" y2="35" stroke="#16314e" stroke-width="2"/>
+            <rect x="14" y="20" width="60" height="30" fill="#2a6b7c" stroke="#16314e" stroke-width="2"/>
+            <text x="44" y="40" text-anchor="middle" fill="#f4edd9" font-family="JetBrains Mono" font-size="9" font-weight="700">KAFKA RAW</text>
+            <rect x="80" y="20" width="60" height="30" fill="#f3b53d" stroke="#16314e" stroke-width="2"/>
+            <text x="110" y="40" text-anchor="middle" fill="#16314e" font-family="JetBrains Mono" font-size="9" font-weight="700">FEAST</text>
+            <rect x="146" y="20" width="60" height="30" fill="#f3b53d" stroke="#16314e" stroke-width="2"/>
+            <text x="176" y="40" text-anchor="middle" fill="#16314e" font-family="JetBrains Mono" font-size="9" font-weight="700">ONLINE</text>
+            <rect x="212" y="20" width="50" height="30" fill="#f3b53d" stroke="#16314e" stroke-width="2"/>
+            <text x="237" y="40" text-anchor="middle" fill="#16314e" font-family="JetBrains Mono" font-size="9" font-weight="700">OFFLINE</text>
+            <rect x="268" y="20" width="48" height="30" fill="#c8482b" stroke="#16314e" stroke-width="2"/>
+            <text x="292" y="40" text-anchor="middle" fill="#f4edd9" font-family="JetBrains Mono" font-size="9" font-weight="700">MODEL</text>
+          </svg>
+        </div>
+        <div class="pcard-body">
+          <h4>ML Feature Store + Inference API</h4>
+          <p>Feast feature store serving 40+ features with online/offline parity. Real-time inference API on FastAPI streaming Kafka events.</p>
+          <div class="stack"><span>FEAST</span><span>KAFKA</span><span>REDSHIFT</span><span>FASTAPI</span><span>DOCKER</span></div>
+        </div>
+        <div class="pcard-outcomes">
+          <div class="pout"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> 40+ FEATURES · TRAIN-SERVE PARITY</div>
+          <div class="pout"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> P95 INFERENCE LATENCY 28MS</div>
+          <div class="pout"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> BACKFILL JOB + MONITORING</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CURRICULUM — BILL OF MATERIALS -->
+<section class="curriculum" id="curriculum">
+  <div class="container">
+    <span class="eyebrow">BILL OF MATERIALS <span class="num">F-01</span></span>
+    <h2 class="section-title">12-week <span class="u">assembly</span> plan.<br/>Each week ends with a <span class="a">shipped artifact</span>.</h2>
+    <p class="section-sub">The full syllabus as a bill of materials — what you build, what you ship, what stack you touch. No fluff weeks. Every Monday you start, every Friday your PR is in front of a senior reviewer.</p>
+
+    <div class="weeks-grid">
+      <div class="weeks">
+        <div class="week-row"><div class="wk-num">01</div><div class="wk-content"><h4>Foundations + Python for Data</h4><p>Core Python, packaging, virtualenvs, type hints, testing, profiling. Pull-request hygiene.</p><div class="wk-meta"><span>PYTHON</span><span>PYTEST</span><span>GIT</span><span>POETRY</span></div></div></div>
+        <div class="week-row"><div class="wk-num">02</div><div class="wk-content"><h4>SQL Deep-Dive + Warehouses</h4><p>Window functions, CTEs, modelling (Kimball/Inmon), performance, indexes, query plans.</p><div class="wk-meta"><span>SQL</span><span>POSTGRES</span><span>SNOWFLAKE</span><span>EXPLAIN</span></div></div></div>
+        <div class="week-row"><div class="wk-num">03</div><div class="wk-content"><h4>Data Modeling + dbt</h4><p>Build a layered warehouse (raw→staging→marts) with dbt, tests, docs, CI.</p><div class="wk-meta"><span>DBT</span><span>SNOWFLAKE</span><span>SCD2</span></div></div></div>
+        <div class="week-row"><div class="wk-num">04</div><div class="wk-content"><h4>Orchestration + Airflow</h4><p>DAGs, idempotency, retries, sensors, SLAs, debugging a broken pipe.</p><div class="wk-meta"><span>AIRFLOW</span><span>DAGs</span><span>SLA</span></div></div></div>
+        <div class="week-row"><div class="wk-num">05</div><div class="wk-content"><h4>Streaming + Kafka</h4><p>Topics, partitions, producers/consumers, exactly-once semantics, schema registry.</p><div class="wk-meta"><span>KAFKA</span><span>SCHEMAS</span><span>EXACTLY-ONCE</span></div></div></div>
+        <div class="week-row"><div class="wk-num">06</div><div class="wk-content"><h4>Spark + Delta Lake</h4><p>Structured Streaming, batch+stream unification, Delta time-travel, optimisation.</p><div class="wk-meta"><span>SPARK</span><span>DELTA</span><span>OPTIMIZE</span></div></div></div>
+        <div class="week-row"><div class="wk-num">07</div><div class="wk-content"><h4>Cloud Infra + AWS</h4><p>S3, IAM, EC2/EKS, networking basics, IaC with Terraform, cost control.</p><div class="wk-meta"><span>AWS</span><span>TERRAFORM</span><span>EKS</span></div></div></div>
+        <div class="week-row"><div class="wk-num">08</div><div class="wk-content"><h4>Data Quality + Observability</h4><p>Soda / Great Expectations, lineage, freshness, alerting runbooks.</p><div class="wk-meta"><span>SODA</span><span>GX</span><span>SLACK</span></div></div></div>
+        <div class="week-row"><div class="wk-num">09</div><div class="wk-content"><h4>Capstone Brief + Architecture</h4><p>Pick a real-world problem, draw the end-to-end architecture, get it approved.</p><div class="wk-meta"><span>ARCHITECTURE</span><span>ADR</span><span>DIAGRAMMING</span></div></div></div>
+        <div class="week-row"><div class="wk-num">10</div><div class="wk-content"><h4>Capstone Build · Part 1</h4><p>Production-grade pipeline. PRs reviewed daily by your senior mentor.</p><div class="wk-meta"><span>CAPSTONE</span><span>PR REVIEW</span><span>CI</span></div></div></div>
+        <div class="week-row"><div class="wk-num">11</div><div class="wk-content"><h4>Capstone Build · Part 2</h4><p>Test, document, harden. Run your pipeline in the cohort demo.</p><div class="wk-meta"><span>TESTING</span><span>RUNBOOK</span></div></div></div>
+        <div class="week-row" style="background:var(--ink);color:var(--paper)"><div class="wk-num" style="color:var(--yellow);border-color:var(--paper)">12</div><div class="wk-content"><h4 style="color:var(--paper)">Demo Day + Final Review</h4><p style="color:#cfc6a8">Public showcase, final PR review, portfolio polish, interview-prep sprint.</p><div class="wk-meta"><span class="finalize">DEMO</span><span class="finalize">PORTFOLIO</span><span class="finalize">INTERVIEW</span></div></div></div>
+      </div>
+
+      <div class="ship-card">
+        <div class="ship-card-head">OUTPUT · END OF PROGRAM</div>
+        <h4>What you ship<br/>by Week 12.</h4>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> 3–5 production-grade GitHub repos</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Architecture decision records (ADRs)</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> End-to-end incident postmortem</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Public demo + walkthrough video</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Resume + LinkedIn rewrite</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Interview-prep stories & wording</li>
+        </ul>
+        <div class="ship-stat">
+          <div><span class="v">12</span><span class="k">WEEKS</span></div>
+          <div><span class="v">200+</span><span class="k">PR REVIEWS</span></div>
+        </div>
+        <div class="ship-quote">"You leave with proof, not promises."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="how">
+  <div class="container">
+    <span class="eyebrow">ASSEMBLY SEQUENCE <span class="num">G-01</span></span>
+    <h2 class="section-title">From <span class="a">apply</span> to<br/><span class="u">hire-ready</span> in four steps.</h2>
+
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-step-num">STEP 01 <span class="dur">~5 MIN</span></div>
+        <div class="how-body">
+          <div class="ic-wrap"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+          <h4>Apply (5 min)</h4>
+          <p>Short qualifying form. We need to know what you've built, what stack you've touched, and what your goal is. No essays.</p>
+        </div>
+      </div>
+      <div class="how-card">
+        <div class="how-step-num">STEP 02 <span class="dur">~30 MIN</span></div>
+        <div class="how-body">
+          <div class="ic-wrap"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <h4>15-min call</h4>
+          <p>Founder calls you. Tells you honestly if this fits. You tell us honestly if it doesn't. Either way you leave with clarity.</p>
+        </div>
+      </div>
+      <div class="how-card">
+        <div class="how-step-num">STEP 03 <span class="dur">WK 1</span></div>
+        <div class="how-body">
+          <div class="ic-wrap"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <h4>Pay & onboard</h4>
+          <p>Confirm seat, pay, get your GitHub org invite. Cohort 03 starts within 14 days. You ship a first PR inside Week 1.</p>
+        </div>
+      </div>
+      <div class="how-card">
+        <div class="how-step-num">STEP 04 <span class="dur">WK 12</span></div>
+        <div class="how-body">
+          <div class="ic-wrap"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/><path d="M3 12h18"/></svg></div>
+          <h4>Demo Day</h4>
+          <p>Public demo in front of hiring partners. Senior mentors on a reference panel. You leave with a portfolio and a story.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUDIENCE -->
+<section class="audience">
+  <div class="container">
+    <span class="eyebrow">DESIGNED FOR <span class="num">H-01</span></span>
+    <h2 class="section-title">This isn't for everyone.<br/>It's <span class="a">built</span> for a specific kind of engineer.</h2>
+
+    <div class="aud-grid">
+      <div class="aud-cell">
+        <span class="arr"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> FINAL-YEAR CS / BCA / MCA</span>
+        <h4>Final-year students</h4>
+        <p>You've finished theory. You need production reps before you graduate — a portfolio that beats the other 800 applicants for the same role.</p>
+      </div>
+      <div class="aud-cell">
+        <span class="arr"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> 0-3 YRS AS DE / DA / SWE</span>
+        <h4>Early-career engineers</h4>
+        <p>You have a job but not the leverage to ask for more. A 12-week residency adds the senior review reps your current team won't give you.</p>
+      </div>
+      <div class="aud-cell">
+        <span class="arr"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> SWE → DE PIVOT</span>
+        <h4>Career switchers</h4>
+        <p>You've already shipped software. You want the data specialty without going back to a 9-month bootcamp ladder.</p>
+      </div>
+      <div class="aud-cell">
+        <span class="arr"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> ANALYST → ENGINEER</span>
+        <h4>Analysts leveling up</h4>
+        <p>You're writing SQL and dbt. You want to design pipelines end-to-end and stop being blocked by an external team every release.</p>
+      </div>
+      <div class="aud-cell">
+        <span class="arr"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> TIER-2/3 → REMOTE FIRST</span>
+        <h4>Tier-2/3 college engineers</h4>
+        <p>The market doesn't surface your profile the way it does for IIT/NIT. We don't care where you studied — we care what you've shipped.</p>
+      </div>
+      <div class="aud-cell">
+        <span class="arr"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> ONLY 10 SEATS / BATCH</span>
+        <h4>Highly selective</h4>
+        <p>If you want a 200-person cohort you'll get a Slack invite and recorded lessons. If you want seniors reviewing your code you'll get this.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USP -->
+<section class="usp">
+  <div class="container">
+    <span class="usp-eyebrow">▣ THE RESIDENCY DIFFERENCE ▣</span>
+    <h2>Other programs give you <span class="r">videos</span>.<br/>We give you a <span class="y">senior</span> tearing apart your code every Friday.</h2>
+    <p>That's the entire pitch. No dramatisation needed.</p>
+  </div>
+</section>
+
+<!-- PRICING — QUOTATION -->
+<section class="pricing-b" id="pricing">
+  <div class="container">
+    <span class="eyebrow r">ORDER QUOTATION <span class="num">J-01</span></span>
+    <h2 class="section-title">One number.<br/><span class="u">One</span> program. <span class="a">Ten</span> seats.</h2>
+    <p class="section-sub">Price reflects the work — not a marketing discount. Early-bird tier is open while seats remain.</p>
+
+    <div class="pricing-grid">
+      <div class="quote-card">
+        <div class="quote-head">
+          <span>QUOTE · Q-DD-2026-C03</span>
+          <span class="pn">VALID 48H · BATCH C03</span>
+        </div>
+        <div class="quote-body">
+          <div class="quote-h3">Data Engineer<br/>Residency · 12 Weeks</div>
+          <div class="quote-meta">COHORT 03 · 10 SEATS · LIVE + PR REVIEW</div>
+
+          <div class="price-row">
+            <span class="rup">₹</span>
+            <span class="amt">49,999</span>
+            <span class="strike">₹59,999</span>
+          </div>
+          <div class="save-line">▸ EARLY-BIRD · YOU SAVE ₹10,000 (16.6%)</div>
+
+          <ul class="price-list">
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> 12 weeks of live senior-mentored work</li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Weekly PR review by a working engineer</li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> 3–5 production-grade portfolio projects</li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Architecture review + 1 mentor call per week</li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Resume / LinkedIn rewrite + interview prep</li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Demo day in front of hiring partners</li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Lifetime access to alumni + cohort channel</li>
+          </ul>
+
+          <button class="btn btn-red btn-lg btn-block" data-open-form data-source="pricing">Reserve My Seat <span class="arr">→</span></button>
+        </div>
+      </div>
+
+      <div class="side-cards">
+        <div class="side-card">
+          <div class="side-card-head">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            SEAT AVAILABILITY · LIVE
+          </div>
+          <div class="side-card-body">
+            <div class="seat-bar"><div class="seat-fill"></div></div>
+            <p><b>03</b> / 10 SEATS LEFT · COHORT 03</p>
+          </div>
+        </div>
+        <div class="side-card honest">
+          <div class="side-card-head">
+            <svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+            HONEST DISCLOSURE
+          </div>
+          <div class="side-card-body">
+            <p>This is <b>not</b> for beginners. You need 3+ months of Python/SQL behind you. We don't teach basics — we teach production-grade engineering on top of your existing fundamentals.</p>
+          </div>
+        </div>
+        <div class="side-card">
+          <div class="side-card-head">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            ROI NOTE
+          </div>
+          <div class="side-card-body">
+            <p>Median salary uplift of past residents: <b style="color:var(--success)">+₹6.2L/yr</b>. That's a 12× return by month four on the job for most residents.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GUARANTEE / INSPECTION SEAL -->
+<section class="guarantee" style="position:relative">
+  <span class="regmarks reg-tl"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+  <span class="regmarks reg-tr"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+  <span class="regmarks reg-bl"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+  <span class="regmarks reg-br"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+  <div class="container">
+    <div class="gwrap">
+      <div class="gseal">
+        <span class="g1">100%</span>
+        <span class="g2">PASS</span>
+        <span class="g3">OR REFUND</span>
+      </div>
+      <div class="gtxt">
+        <h3>Inspect before you commit.<br/>Full refund if Week 1 isn't for you.</h3>
+        <p>Attend Week 1. Sit in the PR reviews. Talk to your mentors. If by Friday you don't feel this is the highest-leverage 12 weeks of your career, email us within 7 days and we'll refund the full amount. No negotiation. No friction.</p>
+      </div>
+      <div class="gcode">
+        <span class="lbl">REFUND-CODE</span>
+        C03-INSPECT-7D
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <span class="eyebrow">TECHNICAL INQUIRIES <span class="num">K-01</span></span>
+    <h2 class="section-title">Common <span class="a">questions</span><br/>before you apply.</h2>
+    <p class="section-sub">If yours isn't here, write to <b style="color:var(--ink)">sourabh@datadives.in</b> — we reply within 24h.</p>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q"><span><span class="qno">Q.01</span>What stack do I really need to already know?</span><span class="plus">+</span></div>
+        <div class="faq-a">At minimum: 3+ months writing Python (functions, classes, testing) and SQL (joins, aggregations, window functions). We don't cover "what is a for-loop." Week 1 starts at the level you'd find in an analytics-engineer JD.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span><span class="qno">Q.02</span>How much time per week is this?</span><span class="plus">+</span></div>
+        <div class="faq-a">Plan for 12-15 hours/week: 4-6 hours of live sessions, the rest on capstone build + PR iterations. It's faster than a bootcamp but more intense than a course. If you're working full-time, talk to us about a part-time variant before applying.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span><span class="qno">Q.03</span>Is this placement-guaranteed?</span><span class="plus">+</span></div>
+        <div class="faq-a">No — we don't sell fake guarantees. We can tell you Cohort 02 had 80% placement within 90 days of demo day, at a median uplift of ₹6.2L. But "guaranteed placement" is the language of low-quality programs. We're honest about outcomes because the work itself sells.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span><span class="qno">Q.04</span>Will I get a certificate?</span><span class="plus">+</span></div>
+        <div class="faq-a">You'll get a GitHub portfolio that does what a certificate never will — shows the work. We do issue a signed "completion" certificate, but we explicitly tell every recruiter who reaches out that the proof is the repo, not the PDF.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span><span class="qno">Q.05</span>What if I don't get selected?</span><span class="plus">+</span></div>
+        <div class="faq-a">We reject about 60% of applicants — usually because they're earlier in their journey than the cohort needs. We're explicit about why in the rejection email, and we'll tell you exactly what to come back with for Cohort 04.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span><span class="qno">Q.06</span>Why only 10 seats?</span><span class="plus">+</span></div>
+        <div class="faq-a">Because the senior reviewers can only sustain 10 PRs/week without burning out. The number is the bottleneck on quality. When we can expand the review board sustainably, the cohort will grow.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span><span class="qno">Q.07</span>I'm outside India — can I join?</span><span class="plus">+</span></div>
+        <div class="faq-a">Yes, but pricing changes (USD invoice) and session times shift to IST-friendly slots. Email us first — current cohort has 2 residents from Singapore and one from Lagos.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta" style="position:relative">
+  <span class="regmarks reg-tl" style="stroke:var(--yellow)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+  <span class="regmarks reg-tr" style="stroke:var(--yellow)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+  <span class="regmarks reg-bl" style="stroke:var(--yellow)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+  <span class="regmarks reg-br" style="stroke:var(--yellow)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span>
+  <div class="container">
+    <span class="stamp-line">▣ SEATS CLOSING · COHORT 03 ▣</span>
+    <h2>Stop <span class="r">applying</span> blind.<br/>Start <span class="y">shipping</span> proof.</h2>
+    <p>3 seats left. Early-bird pricing closes in 48 hours. Application takes 5 minutes.</p>
+    <button class="btn btn-yellow btn-lg" data-open-form data-source="final-cta">Submit Application Now <span class="arr">→</span></button>
+    <div class="foot-rule"></div>
+    <div class="foot-note">
+      <span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Verified · Reviewed weekly</span>
+      <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> 7-day refund</span>
+      <span><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> 80% placement · C02</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container foot">
+    <div class="geo">⚙ ENGINEERED · BENGALURU, IN · © 2026</div>
+    <div>Datadives Academy · <a href="https://www.datadives.in/">datadives.in</a> · <a href="mailto:sourabh@datadives.in">sourabh@datadives.in</a> · 98862 74050</div>
+    <div class="foot-links">
+      <a href="#">Cohort 03</a>
+      <a href="#">Alumni</a>
+      <a href="#">Refund</a>
+    </div>
+  </div>
+</footer>
+
+<!-- FLOATING APPLY -->
+<button class="float-apply" data-open-form data-source="floating">
+  <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+  APPLY · 03 / 10 LEFT
+</button>
+
+<!-- ============ LEAD POPUP FORM (5 steps + scoring) ============ -->
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-head">
+      <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+      <div class="modal-eyebrow">▣ APPLICATION INTAKE · DD-C03</div>
+      <div class="modal-title">Let's see if <span class="y">Cohort 03</span> is the right fit.</h2></div>
+      <div class="modal-sub">// 5 quick steps · score-loaded · reviewed within 48h by Sourabh</div>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+      <!-- Step 1 -->
+      <div class="step active" data-step="1">
+        <div class="step-title">// Step 01 — Contact</div>
+        <div class="step-hint">We need a real email to send the cohort calendar. No spam.</div>
+        <div class="form-group">
+          <label class="form-label"><span class="step-num">01</span>FULL NAME <span class="req">*</span></label>
+          <input class="form-input" name="name" required placeholder="e.g. Aditya Verma" />
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="step-num">02</span>EMAIL <span class="req">*</span></label>
+          <input class="form-input" name="email" type="email" required placeholder="you@gmail.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="step-num">03</span>PHONE / WHATSAPP</label>
+          <input class="form-input" name="phone" type="tel" placeholder="+91 ..." />
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step" data-step="2">
+        <div class="step-title">// Step 02 — Current State</div>
+        <div class="step-hint">Where you are now. Doesn't need to be perfect — helps us match you to the right week reviews.</div>
+        <div class="form-group">
+          <label class="form-label"><span class="step-num">04</span>CURRENT ROLE / STATUS <span class="req">*</span></label>
+          <div class="radio-group">
+            <label class="radio-opt"><input type="radio" name="status" value="final-year" required /><div><div class="rlabel">Final-year student</div><span class="rmeta">CS / BCA / MCA — graduating in 6–12 months</span></div></label>
+            <label class="radio-opt"><input type="radio" name="status" value="early-career" /><div><div class="rlabel">Early-career data engineer (0–3 yrs)</div><span class="rmeta">Currently in DE / DA / adjacent role</span></div></label>
+            <label class="radio-opt"><input type="radio" name="status" value="career-switcher" /><div><div class="rlabel">Career switcher (SWE → DE)</div><span class="rmeta">Software engineer moving into data</span></div></label>
+            <label class="radio-opt"><input type="radio" name="status" value="analyst" /><div><div class="rlabel">Analyst leveling up</div><span class="rmeta">SQL + dbt, want full pipeline ownership</span></div></label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="step-num">05</span>PYTHON + SQL EXPERIENCE <span class="req">*</span></label>
+          <div class="radio-group">
+            <label class="radio-opt"><input type="radio" name="xp" value="0-3" required /><div><div class="rlabel">&lt; 3 months</div><span class="rmeta">Just starting — basics only</span></div></label>
+            <label class="radio-opt"><input type="radio" name="xp" value="3-6" /><div><div class="rlabel">3–6 months</div><span class="rmeta">Done a few projects</span></div></label>
+            <label class="radio-opt"><input type="radio" name="xp" value="6-12" /><div><div class="rlabel">6–12 months</div><span class="rmeta">Solid intermediate — qualify for hot-track</span></div></label>
+            <label class="radio-opt"><input type="radio" name="xp" value="12+" /><div><div class="rlabel">12+ months / working</div><span class="rmeta">Bonus chapter candidate</span></div></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step" data-step="3">
+        <div class="step-title">// Step 03 — Stack signals</div>
+        <div class="step-hint">Have you actually touched any of these? Multi-select. We use this to plan your Week 1 ramp.</div>
+        <div class="form-group">
+          <label class="form-label"><span class="step-num">06</span>STACK ALREADY TOUCHED</label>
+          <div class="radio-group">
+            <label class="radio-opt"><input type="checkbox" name="stack" value="sql" /><div class="rlabel">SQL · Window functions</div></label>
+            <label class="radio-opt"><input type="checkbox" name="stack" value="python" /><div class="rlabel">Python · packaging + tests</div></label>
+            <label class="radio-opt"><input type="checkbox" name="stack" value="docker" /><div class="rlabel">Docker / Compose</div></label>
+            <label class="radio-opt"><input type="checkbox" name="stack" value="aws" /><div class="rlabel">AWS (S3 / IAM)</div></label>
+            <label class="radio-opt"><input type="checkbox" name="stack" value="airflow" /><div class="rlabel">Airflow / orchestration</div></label>
+            <label class="radio-opt"><input type="checkbox" name="stack" value="kafka" /><div class="rlabel">Kafka or another stream</div></label>
+            <label class="radio-opt"><input type="checkbox" name="stack" value="dbt" /><div class="rlabel">dbt</div></label>
+            <label class="radio-opt"><input type="checkbox" name="stack" value="spark" /><div class="rlabel">Spark / PySpark</div></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step" data-step="4">
+        <div class="step-title">// Step 04 — Motivation</div>
+        <div class="step-hint">Honest answer preferred. Helps us decide cohort fit.</div>
+        <div class="form-group">
+          <label class="form-label"><span class="step-num">07</span>WHY THIS RESIDENCY? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label class="radio-opt"><input type="radio" name="why" value="interviews" required /><div><div class="rlabel">I want to actually get interviews</div><span class="rmeta">Resume not converting · need portfolio proof</span></div></label>
+            <label class="radio-opt"><input type="radio" name="why" value="level-up" /><div><div class="rlabel">I want to level up upstream</div><span class="rmeta">Already have a DE job · want senior reps</span></div></label>
+            <label class="radio-opt"><input type="radio" name="why" value="switch" /><div><div class="rlabel">I'm switching into DE from SWE/analyst</div><span class="rmeta">Need production-grade rep fast</span></div></label>
+            <label class="radio-opt"><input type="radio" name="why" value="honest" /><div><div class="rlabel">I'll be honest about it:</div><span class="rmeta">Need real mentorship · tired of tutorials</span></div></label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="step-num">08</span>LIST A GITHUB REPO YOU'RE PROUD OF</label>
+          <input class="form-input" name="repo" placeholder="https://github.com/..." />
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step" data-step="5">
+        <div class="step-title">// Step 05 — Final confirm</div>
+        <div class="step-hint">You're done. We'll review within 48 hours. If we don't get back to you in 3 working days, ping WhatsApp and we'll refund ₹500.</div>
+        <div class="form-group">
+          <label class="form-label"><span class="step-num">09</span>OK TO CONTACT YOU ON WHATSAPP? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label class="radio-opt"><input type="radio" name="contact_ok" value="yes" required /><div><div class="rlabel">Yes — fastest path</div><span class="rmeta">We'll reply within 24h</span></div></label>
+            <label class="radio-opt"><input type="radio" name="contact_ok" value="email" /><div><div class="rlabel">Email only please</div><span class="rmeta">Within 48h</span></div></label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="step-num">10</span>ANYTHING WE SHOULD KNOW?</label>
+          <textarea class="form-textarea" name="note" placeholder="Constraints, timezones, accessibility ..."></textarea>
+        </div>
+      </div>
+
+      <!-- Footer nav -->
+      <div class="modal-footer">
+        <div class="stepmeta">STEP <b id="curStep">1</b> / 5</div>
+        <div class="btn-row">
+          <button class="btn btn-outline" id="prevStep">← Back</button>
+          <button class="btn btn-primary" id="nextStep">Next Step →</button>
+          <button class="btn btn-red" id="submitForm" style="display:none">Submit Application</button>
+        </div>
+      </div>
+
+      <!-- Success -->
+      <div class="success-view" id="successView" style="display:none">
+        <span class="stamp">▣ APPLICATION RECEIVED · DD-C03 ▣</span>
+        <div class="sic"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <h3>You're in the queue.</h3>
+        <p>Founder review within 48 hours. You'll get an email + WhatsApp with either interview slot or honest reasoning if it isn't a fit.</p>
+        <div class="swhat">
+          <h5>// NEXT 48 HOURS — WHAT TO EXPECT</h5>
+          <ul>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Email with interview slot (or honest no)</li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> WhatsApp welcome kit (PDF)</li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Decide on seat within 24h</li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Cohort 03 kicks off within 14 days</li>
+          </ul>
+        </div>
+        <button class="btn btn-primary" id="modalClose2">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== COUNTDOWN ===================== */
+(function(){
+  var deadline=Date.now()+1000*60*60*48;
+  try{var stored=localStorage.getItem('dd_deadline');if(stored)deadline=parseInt(stored);else{localStorage.setItem('dd_deadline',deadline)}}catch(e){}
+  function pad(n){return String(n).padStart(2,'0')}
+  function tick(){
+    var d=Math.max(0,deadline-Date.now());
+    var dd=Math.floor(d/86400000),hh=Math.floor(d%86400000/3600000),mm=Math.floor(d%3600000/60000),ss=Math.floor(d%60000/1000);
+    var el=document.getElementById('timer');
+    if(!el)return;
+    el.querySelector('#dd').textContent=pad(dd);
+    el.querySelector('#hh').textContent=pad(hh);
+    el.querySelector('#mm').textContent=pad(mm);
+    el.querySelector('#ss').textContent=pad(ss);
+  }
+  tick();setInterval(tick,1000);
+})();
+
+/* ===================== STICKY NAV SHADOW ===================== */
+window.addEventListener('scroll',function(){
+  var n=document.querySelector('.nav');
+  if(n){if(window.scrollY>8)n.style.boxShadow='0 2px 0 rgba(22,49,78,.25)';else n.style.boxShadow='none'}
+},{passive:true});
+
+/* ===================== FAQ ===================== */
+document.querySelectorAll('.faq-item').forEach(function(i){
+  i.querySelector('.faq-q').addEventListener('click',function(){
+    var wasOpen=i.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(function(j){j.classList.remove('open')});
+    if(!wasOpen)i.classList.add('open');
+  });
+});
+
+/* ===================== MODAL ===================== */
+var modal=document.getElementById('modalBackdrop');
+function openModal(src){
+  var st=document.querySelectorAll('.step');st.forEach(function(s){s.classList.remove('active');s.style.display='none'});
+  document.querySelector('.step[data-step="1"]').classList.add('active');document.querySelector('.step[data-step="1"]').style.display='block';
+  document.getElementById('successView').style.display='none';
+  document.querySelector('.modal-footer').style.display='flex';
+  curStep=1;updateProgress();
+  modal.classList.add('open');document.body.style.overflow='hidden';
+  try{if(window.fbq)fbq('trackCustom','ApplyModalOpen',{source:src||'unknown'})}catch(e){}
+}
+function closeModal(){modal.classList.remove('open');document.body.style.overflow=''}
+document.querySelectorAll('[data-open-form]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();openModal(this.dataset.source||'cta')})});
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalClose2')&&document.getElementById('modalClose2').addEventListener('click',closeModal);
+modal.addEventListener('click',function(e){if(e.target===modal)closeModal()});
+
+/* ===================== STEP NAV + SCORING ===================== */
+var curStep=1;
+function updateProgress(){
+  var pct=(curStep-1)*25;document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('curStep').textContent=curStep;
+  document.getElementById('prevStep').style.visibility=curStep===1?'hidden':'visible';
+  document.getElementById('nextStep').style.display=curStep===5?'none':'inline-flex';
+  document.getElementById('submitForm').style.display=curStep===5?'inline-flex':'none';
+}
+function gatherFormData(){
+  var data={};
+  document.querySelectorAll('.modal-input,.modal input[name]').forEach(function(el){
+    if(el.type==='radio'){if(el.checked)data[el.name]=el.value}
+    else if(el.type==='checkbox'){data[el.name]=data[el.name]||[];if(el.checked){if(data[el.name].indexOf(el.value)===-1)data[el.name].push(el.value)}}
+    else if(el.value){data[el.name]=el.value}
+  });
+  return data;
+}
+function validateStep(n){
+  if(n===1){var nm=document.querySelector('input[name="name"]').value.trim();var em=document.querySelector('input[name="email"]').value.trim();if(!nm||!em)return false}
+  if(n===2){var st=document.querySelector('input[name="status"]:checked');var xp=document.querySelector('input[name="xp"]:checked');if(!st||!xp)return false}
+  if(n===4){var w=document.querySelector('input[name="why"]:checked');if(!w)return false}
+  if(n===5){var co=document.querySelector('input[name="contact_ok"]:checked');if(!co)return false}
+  return true;
+}
+document.getElementById('prevStep').addEventListener('click',function(){
+  if(curStep>1){document.querySelector('.step[data-step="'+curStep+'"]').classList.remove('active');document.querySelector('.step[data-step="'+curStep+'"]').style.display='none';curStep--;document.querySelector('.step[data-step="'+curStep+'"]').classList.add('active');document.querySelector('.step[data-step="'+curStep+'"]').style.display='block';updateProgress()}
+});
+document.getElementById('nextStep').addEventListener('click',function(){
+  if(!validateStep(curStep)){alert('Please fill the required fields before continuing.');return}
+  document.querySelector('.step[data-step="'+curStep+'"]').classList.remove('active');document.querySelector('.step[data-step="'+curStep+'"]').style.display='none';curStep++;document.querySelector('.step[data-step="'+curStep+'"]').classList.add('active');document.querySelector('.step[data-step="'+curStep+'"]').style.display='block';updateProgress();
+});
+document.querySelectorAll('.radio-opt').forEach(function(r){
+  r.addEventListener('click',function(){var inp=this.querySelector('input');if(!inp)return;if(inp.type==='radio'){this.parentElement.querySelectorAll('.radio-opt').forEach(function(s){s.classList.remove('selected')});this.classList.add('selected');inp.checked=true}else if(inp.type==='checkbox'){this.classList.toggle('selected',inp.checked)}});
+});
+function scoreLead(d){
+  var score=0;
+  if(d.xp==='6-12')score+=35;else if(d.xp==='12+')score+=30;else if(d.xp==='3-6')score+=15;
+  if(d.status==='early-career')score+=20;else if(d.status==='final-year')score+=18;else if(d.status==='career-switcher')score+=15;else if(d.status==='analyst')score+=14;
+  var stackCount=(d.stack||[]).length;score+=Math.min(stackCount*5,25);
+  if(d.why==='interviews')score+=15;else if(d.why==='level-up')score+=14;
+  if(d.repo)score+=10;
+  if(d.contact_ok==='yes')score+=5;
+  var tier=score>=70?'HOT':score>=45?'WARM':'COLD';return {score:score,tier:tier};
+}
+document.getElementById('submitForm').addEventListener('click',function(){
+  if(!validateStep(curStep)){alert('Please complete the consent question.');return}
+  var data=gatherFormData();
+  var sc=scoreLead(data);
+  try{
+    if(window.fbq){
+      fbq('track','Lead',{value:1,currency:'INR',content_name:'C03 Application',content_category:sc.tier,score:sc.score,stack_count:(data.stack||[]).length,experience:data.xp,role:data.status});
+      fbq('trackCustom','QualifiedLead',{tier:sc.tier,score:sc.score,source:'v2-land'});
+      fbq('track','CompleteRegistration',{status:'submitted'});
+    }
+  }catch(e){}
+  document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active');s.style.display='none'});
+  document.querySelector('.modal-footer').style.display='none';
+  document.getElementById('successView').style.display='block';
+  document.getElementById('progressFill').style.width='100%';
+  /* TODO: wire CRM webhook here
+  fetch('https://your-crm-webhook',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({tier:sc.tier,score:sc.score},data))})
+  */
+});
+
+/* ===================== SCROLL TRACKING ===================== */
+(function(){
+  var marks={25:false,50:false,75:false,100:false};
+  function onScroll(){
+    var max=document.body.scrollHeight-window.innerHeight;
+    var p=Math.min(100,Math.round((window.scrollY/max)*100));
+    [25,50,75,100].forEach(function(m){if(p>=m&&!marks[m]){marks[m]=true;try{if(window.fbq)fbq('trackCustom','ScrollDepth',{percent:m,page:'datadives-academy-v2'})}catch(e){}}});
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});
+})();
+</script>
+
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79"}' crossorigin="anonymous"></script>
+</body>
+</html>
